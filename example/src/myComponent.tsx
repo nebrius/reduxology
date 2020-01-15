@@ -1,3 +1,4 @@
+/*
 MIT License
 
 Copyright (c) Bryan Hughes <bryan@nebri.us>
@@ -19,3 +20,35 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+import * as React from 'react';
+import { Appointment } from './types';
+
+export interface MyComponentProps {
+  appointments: Appointment[];
+}
+
+export interface MyComponentDispatch {
+  addAppointment: (appointment: Appointment) => void;
+}
+
+export class MyComponent extends React.Component<MyComponentProps & MyComponentDispatch, null> {
+  public render() {
+    return (
+      <div>
+        {this.props.appointments.map((appointment) => (
+          <div>{new Date(appointment.time)} ({appointment.duration} minutes)</div>
+        ))}
+        <button onClick={this.onClick}>Add Appointment</button>
+      </div>
+    );
+  }
+
+  public onClick = () => {
+    this.props.addAppointment({
+      time: Date.now(),
+      duration: 30
+    });
+  }
+}

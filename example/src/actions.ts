@@ -1,3 +1,4 @@
+/*
 MIT License
 
 Copyright (c) Bryan Hughes <bryan@nebri.us>
@@ -19,3 +20,15 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+import { registerAction } from '../../';
+import { ACTION_TYPES, Appointment } from './types';
+
+registerAction(ACTION_TYPES.ADD_APPOINTMENT, (appointment: Appointment) => {
+  return appointment;
+});
+
+registerAction(ACTION_TYPES.CANCEL_APPOINTMENT, (appointment: Appointment) => {
+  return appointment;
+});

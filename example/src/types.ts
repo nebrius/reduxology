@@ -1,3 +1,4 @@
+/*
 MIT License
 
 Copyright (c) Bryan Hughes <bryan@nebri.us>
@@ -19,3 +20,23 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+export const STATE_PATHS = {
+  USERS: 'USERS',
+  APPOINTMENTS: 'APPOINTMENTS'
+};
+
+export const ACTION_TYPES = {
+  ADD_APPOINTMENT: 'ADD_APPOINTMENT',
+  CANCEL_APPOINTMENT: 'CANCEL_APPOINTMENT'
+};
+
+export interface Appointment {
+  time: number;
+  duration: number;
+}
+
+export interface AppointmentState {
+  appointments: Appointment[];
+}

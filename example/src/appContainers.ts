@@ -1,3 +1,4 @@
+/*
 MIT License
 
 Copyright (c) Bryan Hughes <bryan@nebri.us>
@@ -19,3 +20,25 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+import { createContainer } from '../../';
+import { MyComponent, MyComponentProps, MyComponentDispatch } from './myComponent';
+import { STATE_PATHS, ACTION_TYPES, AppointmentState } from './types';
+
+export const AppContainer = createContainer({
+  mapStateToProps(state): MyComponentProps {
+    const appointmentState: AppointmentState = state.getState(STATE_PATHS.APPOINTMENTS);
+    return {
+      appointments: appointmentState.appointments
+    };
+  },
+  mapDispatchToProps(dispatch): MyComponentDispatch {
+    return {
+      addAppointment(appointment) {
+        dispatch(ACTION_TYPES.ADD_APPOINTMENT, appointment);
+      }
+    };
+  },
+  component: MyComponent
+});
