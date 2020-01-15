@@ -21,21 +21,33 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-import * as React from 'react';
-export class MyComponent extends React.Component {
-    constructor() {
-        super(...arguments);
-        this.onClick = () => {
-            this.props.addAppointment({
-                time: Date.now(),
-                duration: 30
-            });
-        };
+import { registerReducer } from "../../";
+import { STATE_PATHS, ACTION_TYPES } from "./types";
+const init = {
+  appointments: []
+};
+registerReducer({
+  path: STATE_PATHS.APPOINTMENTS,
+  actions: {
+    [ACTION_TYPES.ADD_APPOINTMENT](state, newAppointment) {
+      const newState = {
+        ...state,
+        appointments: [...state.appointments, newAppointment]
+      };
+      return newState;
+    },
+    [ACTION_TYPES.CANCEL_APPOINTMENT](state, appointment) {
+      const newAppointments = [...state.appointments];
+      const index = newAppointments.indexOf(appointment);
+      if (index !== -1) {
+        newAppointments.splice(index, 1);
+      }
+      const newState = {
+        ...state,
+        appointments: newAppointments
+      };
+      return newState;
     }
-    render() {
-        return (<div>
-        {this.props.appointments.map((appointment) => (<div>{new Date(appointment.time)} ({appointment.duration} minutes)</div>))}
-        <button onClick={this.onClick}>Add Appointment</button>
-      </div>);
-    }
-}
+  },
+  init
+});

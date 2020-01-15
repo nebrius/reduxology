@@ -7,7 +7,7 @@
     "prebuild": "tslint 'src/**/*.tsx' 'src/**/*.ts'",
     "build": "webpack",
     "postbuild": "cp ./src/index.html ./dist",
-    "build-js": "tsc -p tsconfig.js.json"
+    "build-js": "tsc -p tsconfig.js.json; prettier --write src-js/**/*.js src-js/**/*.jsx"
   },
   "dependencies": {
     "react": "^16.12.0",
@@ -17,6 +17,7 @@
     "@types/react": "^16.9.17",
     "@types/react-dom": "^16.9.4",
     "@types/react-redux": "^7.1.5",
+    "prettier": "^1.19.1",
     "ts-loader": "^6.2.1",
     "tslint": "^5.20.1",
     "typescript": "^3.7.4",
