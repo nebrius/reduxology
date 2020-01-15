@@ -22,20 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-class State {
-  public getState(path: string): any {
-    // TODO
-  }
-}
+import { connect, ConnectedComponent } from 'react-redux';
+import { state, State } from './state';
 
 type MapStateToProps = (state: State) => any;
 type MapDispatchToProps = (dispatch: (action: string, data: any) => void) => any;
 
-// This type is a placeholder
-let id = 0;
-export interface Container {
-  id: number;
-}
+export type Container = ConnectedComponent<any, Pick<unknown, never>>;
 
 export interface CreateContainerOptions {
   mapStateToProps: MapStateToProps;
@@ -62,7 +55,17 @@ export function createContainer(
   } else {
     mapStateToProps = optionsOrMapStateToProps;
   }
-  console.log('createContainer', mapStateToProps, mapDispatchToProps, component);
+  return createContainerWrapper(mapStateToProps, mapDispatchToProps as MapDispatchToProps, component);
+}
 
-  return { id: id++ };
+function createContainerWrapper(
+  mapStateToProps: MapStateToProps,
+  mapDispatchToProps: MapDispatchToProps,
+  component: any
+): Container {
+  console.log('createContainer', mapStateToProps, mapDispatchToProps, component);
+  return connect(
+    (rawState) => mapStateToProps(state),
+    mapDispatchToProps
+  )(component);
 }

@@ -25,10 +25,10 @@ SOFTWARE.
 import { render } from 'react-dom';
 import { createRoot } from '../../';
 
-import { AppContainer } from './appContainers';
-
 import './actions';
 import './reducers';
+
+import { AppContainer } from './appContainers';
 
 render(
   createRoot(AppContainer),

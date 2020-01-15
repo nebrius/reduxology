@@ -1,11 +1,8 @@
-declare class State {
-    getState(path: string): any;
-}
+import { ConnectedComponent } from 'react-redux';
+import { State } from './state';
 declare type MapStateToProps = (state: State) => any;
 declare type MapDispatchToProps = (dispatch: (action: string, data: any) => void) => any;
-export interface Container {
-    id: number;
-}
+export declare type Container = ConnectedComponent<any, Pick<unknown, never>>;
 export interface CreateContainerOptions {
     mapStateToProps: MapStateToProps;
     mapDispatchToProps: MapDispatchToProps;

@@ -21,9 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-import { render } from 'react-dom';
-import { createRoot } from '../../';
-import './actions';
-import './reducers';
-import { AppContainer } from './appContainers';
-render(createRoot(AppContainer), document.getElementById('root'));
+
+export class State {
+  public getState(path: string): any {
+    // TODO
+  }
+}
+
+export const state = new State();
