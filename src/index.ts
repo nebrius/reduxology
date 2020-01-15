@@ -41,7 +41,7 @@ export function registerAction(optionsOrType: string | RegisterActionOptions, cr
   } else {
     type = optionsOrType;
   }
-  console.log(type, creator);
+  console.log('registerAction', type, creator);
 }
 
 // Reducers
@@ -73,7 +73,7 @@ export function registerReducer(
   } else {
     path = optionsOrPath;
   }
-  console.log(path, actions, init);
+  console.log('registerReducer', path, actions, init);
 }
 
 // Containers
@@ -118,7 +118,7 @@ export function createContainer(
   } else {
     mapStateToProps = optionsOrMapStateToProps;
   }
-  console.log(mapStateToProps, mapDispatchToProps, component);
+  console.log('createContainer', mapStateToProps, mapDispatchToProps, component);
 
   return { id: id++ };
 }
@@ -126,5 +126,5 @@ export function createContainer(
 // Root
 
 export function createRoot(container: Container): any { // Return type is too loose
-  // TODO
+  console.log('createRoot');
 }

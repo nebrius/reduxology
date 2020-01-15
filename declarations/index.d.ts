@@ -16,14 +16,17 @@ export declare function registerReducer(path: string, actions: Record<string, Re
 declare class State {
     getState(path: string): any;
 }
-export interface CreateContainerOptions {
-    mapStateToProps: (state: State) => any;
-    mapDispatchToProps: (dispatch: (action: string, data: any) => void) => any;
-    component: any;
-}
+declare type MapStateToProps = (state: State) => any;
+declare type MapDispatchToProps = (dispatch: (action: string, data: any) => void) => any;
 export interface Container {
     id: number;
 }
+export interface CreateContainerOptions {
+    mapStateToProps: MapStateToProps;
+    mapDispatchToProps: MapDispatchToProps;
+    component: any;
+}
 export declare function createContainer(options: CreateContainerOptions): Container;
+export declare function createContainer(mapStateToProps: MapStateToProps, mapDispatchToProps: MapDispatchToProps, component: any): Container;
 export declare function createRoot(container: Container): any;
 export {};
