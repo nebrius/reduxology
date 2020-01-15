@@ -22,7 +22,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-export * from './actions';
-export * from './containers';
-export * from './reducers';
-export * from './root';
+export type ReducerActionListener = (state: any, action: any) => any;
+
+export interface RegisterReducerOptions {
+  path: string;
+  actions: Record<string, ReducerActionListener>;
+  init: any;
+}
+
+export function registerReducer(options: RegisterReducerOptions): void;
+export function registerReducer(
+  path: string,
+  actions: Record<string, ReducerActionListener>,
+  init: any
+): void;
+export function registerReducer(
+  optionsOrPath: string | RegisterReducerOptions,
+  actions?: Record<string, ReducerActionListener>,
+  init?: any
+): void {
+  let path: string;
+  if (typeof optionsOrPath === 'object') {
+    path = optionsOrPath.path;
+    actions = optionsOrPath.actions;
+    init = optionsOrPath.init;
+  } else {
+    path = optionsOrPath;
+  }
+  console.log('registerReducer', path, actions, init);
+}

@@ -21,8 +21,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
-export * from './actions';
-export * from './containers';
-export * from './reducers';
-export * from './root';
+import * as React from 'react';
+export class MyComponent extends React.Component {
+    constructor() {
+        super(...arguments);
+        this.onClick = () => {
+            this.props.addAppointment({
+                time: Date.now(),
+                duration: 30
+            });
+        };
+    }
+    render() {
+        return (<div>
+        {this.props.appointments.map((appointment) => (<div>{new Date(appointment.time)} ({appointment.duration} minutes)</div>))}
+        <button onClick={this.onClick}>Add Appointment</button>
+      </div>);
+    }
+}

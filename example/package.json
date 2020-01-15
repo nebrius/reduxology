@@ -4,10 +4,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prebuild": "rm -rf dist && tslint 'src/**/*.tsx' 'src/**/*.ts'",
+    "prebuild": "tslint 'src/**/*.tsx' 'src/**/*.ts'",
     "build": "webpack",
     "postbuild": "cp ./src/index.html ./dist",
-    "build-js": "rm -rf dist && tsc -p tsconfig.js.json"
+    "build-js": "tsc -p tsconfig.js.json"
   },
   "dependencies": {
     "react": "^16.12.0",

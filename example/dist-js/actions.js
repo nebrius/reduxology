@@ -21,8 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
-export * from './actions';
-export * from './containers';
-export * from './reducers';
-export * from './root';
+import { registerAction } from '../../';
+import { ACTION_TYPES } from './types';
+registerAction(ACTION_TYPES.ADD_APPOINTMENT, (appointment) => {
+    return appointment;
+});
+registerAction(ACTION_TYPES.CANCEL_APPOINTMENT, (appointment) => {
+    return appointment;
+});

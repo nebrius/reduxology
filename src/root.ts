@@ -22,7 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-export * from './actions';
-export * from './containers';
-export * from './reducers';
-export * from './root';
+import { Container } from './containers';
+
+export function createRoot(container: Container): any { // Return type is too loose
+  console.log('createRoot');
+}

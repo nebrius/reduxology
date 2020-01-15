@@ -22,7 +22,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-export * from './actions';
-export * from './containers';
-export * from './reducers';
-export * from './root';
+export type ActionCreator = (...args: any[]) => any;
+
+export interface RegisterActionOptions {
+  type: string;
+  creator: ActionCreator;
+}
+
+export function registerAction(options: RegisterActionOptions): void;
+export function registerAction(type: string, creator: ActionCreator): void;
+export function registerAction(optionsOrType: string | RegisterActionOptions, creator?: ActionCreator): void {
+  let type: string;
+  if (typeof optionsOrType === 'object') {
+    type = optionsOrType.type;
+    creator = optionsOrType.creator;
+  } else {
+    type = optionsOrType;
+  }
+  console.log('registerAction', type, creator);
+}
