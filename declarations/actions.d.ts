@@ -1,7 +1,4 @@
-export declare type ActionCreator = (...args: any[]) => any;
-export interface RegisterActionOptions {
+export interface Action {
     type: string;
-    creator: ActionCreator;
+    data: any;
 }
-export declare function registerAction(options: RegisterActionOptions): void;
-export declare function registerAction(type: string, creator: ActionCreator): void;

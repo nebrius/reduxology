@@ -23,25 +23,67 @@ SOFTWARE.
 */
 
 import { Reducer as ReduxReducer, combineReducers } from 'redux';
+import { Action } from './actions';
 
 export type ReducerActionListener = (state: any, action: any) => any;
 
+const reducers: Record<string, Reducer> = {};
+
+const reduxReducer = Symbol('reduxReducer');
+const actionHandlers = Symbol('actionHandlers');
+
 export class Reducer {
-  constructor(path: string, init: any) {
-    // TODO
+
+  public [reduxReducer]: ReduxReducer;
+  private [actionHandlers]: Record<string, ReducerActionListener> = {};
+
+  constructor(init: any) {
+    this[reduxReducer] = (state: any, action: any) => {
+      if (typeof state === 'undefined') {
+        state = init;
+      }
+      if (this[actionHandlers].hasOwnProperty((action as Action).type)) {
+        return this[actionHandlers][action.type](state, (action as Action).data);
+      }
+      return state;
+    };
   }
 
   public registerActionHandler = (actionType: string, listener: ReducerActionListener): Reducer => {
-    // TODO
+    if (this[actionHandlers].hasOwnProperty(actionType)) {
+      throw new Error(`An action handler for ${actionType} has already been registered`);
+    }
+    this[actionHandlers][actionType] = listener;
     return this;
+  }
+
+  public unregisterActionHandler = (actionType: string): void => {
+    delete this[actionHandlers][actionType];
+  }
+
+  public isActionHandlerRegistered = (actionType: string): boolean => {
+    return this[actionHandlers].hasOwnProperty(actionType);
   }
 }
 
-export function createReducer(path: string, init: any): Reducer {
-  return new Reducer(path, init);
+export function createReducer(id: string, init: any): Reducer {
+  if (typeof id !== 'string') {
+    throw new Error('"id" argument must be a string');
+  }
+  if (reducers.hasOwnProperty(id)) {
+    throw new Error(`Cannot create reducer at ${id} because it is already taken`);
+  }
+  const reducer = new Reducer(init);
+  reducers[id] = reducer;
+  return reducer;
 }
 
-export function getRootReducers(): ReduxReducer {
-  // TODO
-  return combineReducers({});
+export function buildReduxReducerSet(): ReduxReducer {
+  const reducerSet: Record<string, ReduxReducer> = {};
+  // tslint:disable forin
+  for (const id in reducers) {
+    const reducer = reducers[id];
+    reducerSet[id] = reducer[reduxReducer];
+  }
+  return combineReducers(reducerSet);
 }

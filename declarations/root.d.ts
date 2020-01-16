@@ -1,2 +1,2 @@
 import { Container } from './containers';
-export declare function createRoot(container: Container): any;
+export declare function createRoot(RootContainer: Container): any;
