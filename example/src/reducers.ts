@@ -22,38 +22,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import { registerReducer } from '../../';
+import { createReducer } from '../../';
 import { STATE_PATHS, ACTION_TYPES, Appointment, AppointmentState } from './types';
 
 const init: AppointmentState = {
   appointments: []
 };
 
-registerReducer({
-  path: STATE_PATHS.APPOINTMENTS,
+createReducer(STATE_PATHS.APPOINTMENTS, init)
 
-  actions: {
-    [ACTION_TYPES.ADD_APPOINTMENT](state: AppointmentState, newAppointment: Appointment) {
-      const newState: AppointmentState = {
-        ...state,
-        appointments: [ ...state.appointments, newAppointment ]
-      };
-      return newState;
-    },
+  .registerActionHandler(ACTION_TYPES.ADD_APPOINTMENT, (state: AppointmentState, newAppointment: Appointment) => {
+    const newState: AppointmentState = {
+      ...state,
+      appointments: [ ...state.appointments, newAppointment ]
+    };
+    return newState;
+  })
 
-    [ACTION_TYPES.CANCEL_APPOINTMENT](state: AppointmentState, appointment: Appointment) {
-      const newAppointments = [ ...state.appointments ];
-      const index = newAppointments.indexOf(appointment);
-      if (index !== -1) {
-        newAppointments.splice(index, 1);
-      }
-      const newState: AppointmentState = {
-        ...state,
-        appointments: newAppointments
-      };
-      return newState;
+  .registerActionHandler(ACTION_TYPES.CANCEL_APPOINTMENT, (state: AppointmentState, appointment: Appointment) => {
+    const newAppointments = [ ...state.appointments ];
+    const index = newAppointments.indexOf(appointment);
+    if (index !== -1) {
+      newAppointments.splice(index, 1);
     }
-  },
-
-  init
-});
+    const newState: AppointmentState = {
+      ...state,
+      appointments: newAppointments
+    };
+    return newState;
+  });

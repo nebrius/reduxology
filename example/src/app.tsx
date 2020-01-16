@@ -25,7 +25,6 @@ SOFTWARE.
 import { render } from 'react-dom';
 import { createRoot } from '../../';
 
-import './actions';
 import './reducers';
 
 import { AppContainer } from './appContainers';

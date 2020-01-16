@@ -22,32 +22,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+import { Reducer as ReduxReducer, combineReducers } from 'redux';
+
 export type ReducerActionListener = (state: any, action: any) => any;
 
-export interface RegisterReducerOptions {
-  path: string;
-  actions: Record<string, ReducerActionListener>;
-  init: any;
+export class Reducer {
+  constructor(path: string, init: any) {
+    // TODO
+  }
+
+  public registerActionHandler = (actionType: string, listener: ReducerActionListener): Reducer => {
+    // TODO
+    return this;
+  }
 }
 
-export function registerReducer(options: RegisterReducerOptions): void;
-export function registerReducer(
-  path: string,
-  actions: Record<string, ReducerActionListener>,
-  init: any
-): void;
-export function registerReducer(
-  optionsOrPath: string | RegisterReducerOptions,
-  actions?: Record<string, ReducerActionListener>,
-  init?: any
-): void {
-  let path: string;
-  if (typeof optionsOrPath === 'object') {
-    path = optionsOrPath.path;
-    actions = optionsOrPath.actions;
-    init = optionsOrPath.init;
-  } else {
-    path = optionsOrPath;
-  }
-  console.log('registerReducer', path, actions, init);
+export function createReducer(path: string, init: any): Reducer {
+  return new Reducer(path, init);
+}
+
+export function getRootReducers(): ReduxReducer {
+  // TODO
+  return combineReducers({});
 }

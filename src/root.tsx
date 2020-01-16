@@ -22,8 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+import * as React from 'react';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
 import { Container } from './containers';
+import { getRootReducers } from './reducers';
 
-export function createRoot(container: Container): any { // Return type is too loose
-  console.log('createRoot');
+export function createRoot(RootContainer: Container): any { // Return type is too loose
+  const store = createStore(getRootReducers());
+  return (
+    <Provider store={store}>
+      <RootContainer />
+    </Provider>
+  );
 }

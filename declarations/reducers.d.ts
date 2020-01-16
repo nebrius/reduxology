@@ -1,8 +1,6 @@
 export declare type ReducerActionListener = (state: any, action: any) => any;
-export interface RegisterReducerOptions {
-    path: string;
-    actions: Record<string, ReducerActionListener>;
-    init: any;
+export declare class Reducer {
+    constructor(path: string, init: any);
+    registerActionHandler: (actionType: string, listener: ReducerActionListener) => Reducer;
 }
-export declare function registerReducer(options: RegisterReducerOptions): void;
-export declare function registerReducer(path: string, actions: Record<string, ReducerActionListener>, init: any): void;
+export declare function createReducer(path: string, init: any): Reducer;
