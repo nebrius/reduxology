@@ -10,6 +10,6 @@ export declare class Reducer {
     unregisterActionHandler: (actionType: string) => void;
     isActionHandlerRegistered: (actionType: string) => boolean;
 }
-export declare function createReducer(id: string, init: any): Reducer;
+export declare function createReducer(dataId: string, initialData: any): Reducer;
 export declare function buildReduxReducerSet(): ReduxReducer;
 export {};

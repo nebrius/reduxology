@@ -22,10 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+const state = Symbol('state');
+
 export class State {
-  public getState(path: string): any {
-    // TODO
+
+  private [state]: Record<string, any>;
+
+  constructor(rawState: Record<string, any>) {
+    this[state] = rawState;
+  }
+  public getState(id: string): any {
+    if (!this[state].hasOwnProperty(id)) {
+      throw new Error(`State id "${id}" does not exist`);
+    }
+    return this[state][id];
   }
 }
-
-export const state = new State();

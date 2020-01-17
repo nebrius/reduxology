@@ -24,4 +24,4 @@ SOFTWARE.
 
 export { createContainer, CreateContainerOptions } from './containers';
 export { createReducer } from './reducers';
-export { createRoot } from './root';
+export { createStore } from './store';

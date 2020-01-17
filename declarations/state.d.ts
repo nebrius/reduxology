@@ -1,4 +1,7 @@
+declare const state: unique symbol;
 export declare class State {
-    getState(path: string): any;
+    private [state];
+    constructor(rawState: Record<string, any>);
+    getState(id: string): any;
 }
-export declare const state: State;
+export {};

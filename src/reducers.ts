@@ -66,15 +66,15 @@ export class Reducer {
   }
 }
 
-export function createReducer(id: string, init: any): Reducer {
-  if (typeof id !== 'string') {
+export function createReducer(dataId: string, initialData: any): Reducer {
+  if (typeof dataId !== 'string') {
     throw new Error('"id" argument must be a string');
   }
-  if (reducers.hasOwnProperty(id)) {
-    throw new Error(`Cannot create reducer at ${id} because it is already taken`);
+  if (reducers.hasOwnProperty(dataId)) {
+    throw new Error(`Cannot create reducer at ${dataId} because it is already taken`);
   }
-  const reducer = new Reducer(init);
-  reducers[id] = reducer;
+  const reducer = new Reducer(initialData);
+  reducers[dataId] = reducer;
   return reducer;
 }
 

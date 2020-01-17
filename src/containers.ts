@@ -23,7 +23,8 @@ SOFTWARE.
 */
 
 import { connect, ConnectedComponent } from 'react-redux';
-import { state, State } from './state';
+import { State } from './state';
+import { Action } from './actions';
 
 type MapStateToProps = (state: State) => any;
 type MapDispatchToProps = (dispatch: (action: string, data: any) => void) => any;
@@ -33,7 +34,7 @@ export type Container = ConnectedComponent<any, Pick<unknown, never>>;
 export interface CreateContainerOptions {
   mapStateToProps: MapStateToProps;
   mapDispatchToProps: MapDispatchToProps;
-  component: any; // Type is too loose
+  component: any; // TODO: getting the proper signature set up to make everyone happy is elusive, fix it
 }
 
 export function createContainer(options: CreateContainerOptions): Container;
@@ -55,17 +56,20 @@ export function createContainer(
   } else {
     mapStateToProps = optionsOrMapStateToProps;
   }
-  return createContainerWrapper(mapStateToProps, mapDispatchToProps as MapDispatchToProps, component);
-}
-
-function createContainerWrapper(
-  mapStateToProps: MapStateToProps,
-  mapDispatchToProps: MapDispatchToProps,
-  component: any
-): Container {
-  console.log('createContainer', mapStateToProps, mapDispatchToProps, component);
+  if (!component) {
+    throw new Error('"component" must be a React component');
+  }
+  if (typeof mapStateToProps !== 'function') {
+    throw new Error('"mapStateToProps" must be a function');
+  }
+  if (typeof mapDispatchToProps !== 'function') {
+    throw new Error('"mapDispatchToProps" must be a function');
+  }
   return connect(
-    (rawState) => mapStateToProps(state),
-    mapDispatchToProps
+    (rawState) => mapStateToProps(new State(rawState)),
+    (rawDispatch) => (mapDispatchToProps as MapDispatchToProps)((type: string, data: any) => {
+      const rawAction: Action = { type, data };
+      rawDispatch(rawAction);
+    })
   )(component);
 }
