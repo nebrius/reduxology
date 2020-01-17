@@ -22,52 +22,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import { connect, ConnectedComponent } from 'react-redux';
+import { connect } from 'react-redux';
 import { State } from './state';
 import { Action } from './actions';
+import { Dispatch } from 'react';
 
 type MapStateToProps = (state: State) => any;
 type MapDispatchToProps = (dispatch: (action: string, data: any) => void) => any;
 
-export type Container = ConnectedComponent<any, Pick<unknown, never>>;
-
-export interface CreateContainerOptions {
-  mapStateToProps: MapStateToProps;
-  mapDispatchToProps: MapDispatchToProps;
-  component: any; // TODO: getting the proper signature set up to make everyone happy is elusive, fix it
-}
-
-export function createContainer(options: CreateContainerOptions): Container;
 export function createContainer(
   mapStateToProps: MapStateToProps,
   mapDispatchToProps: MapDispatchToProps,
   component: any
-): Container;
-export function createContainer(
-  optionsOrMapStateToProps: CreateContainerOptions | MapStateToProps,
-  mapDispatchToProps?: MapDispatchToProps,
-  component?: any
-): Container {
-  let mapStateToProps: MapStateToProps;
-  if (typeof optionsOrMapStateToProps === 'object') {
-    mapStateToProps = optionsOrMapStateToProps.mapStateToProps;
-    mapDispatchToProps = optionsOrMapStateToProps.mapDispatchToProps;
-    component = optionsOrMapStateToProps.component;
-  } else {
-    mapStateToProps = optionsOrMapStateToProps;
-  }
-  if (!component) {
-    throw new Error('"component" must be a React component');
-  }
-  if (typeof mapStateToProps !== 'function') {
-    throw new Error('"mapStateToProps" must be a function');
-  }
-  if (typeof mapDispatchToProps !== 'function') {
-    throw new Error('"mapDispatchToProps" must be a function');
-  }
+) {
   return connect(
-    (rawState) => mapStateToProps(new State(rawState)),
-    (rawDispatch) => (mapDispatchToProps as MapDispatchToProps)((type: string, data: any) => {
+    (rawState: any) => mapStateToProps(new State(rawState)),
+    (rawDispatch: Dispatch<any>) => (mapDispatchToProps as MapDispatchToProps)((type: string, data: any) => {
       const rawAction: Action = { type, data };
       rawDispatch(rawAction);
     })

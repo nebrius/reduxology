@@ -1,3 +1,3 @@
-export { createContainer, CreateContainerOptions } from './containers';
+export { createContainer } from './containers';
 export { createReducer } from './reducers';
-export { createStore } from './store';
+export { createRoot } from './root';

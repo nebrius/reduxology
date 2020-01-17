@@ -1,2 +1,2 @@
-import { Container } from './containers';
-export declare function createRoot(RootContainer: Container): any;
+/// <reference types="react" />
+export declare function createRoot(Container: any): JSX.Element;

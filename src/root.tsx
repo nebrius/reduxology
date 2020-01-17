@@ -22,9 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import { createStore as createReduxStore } from 'redux';
+import * as React from 'react';
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
 import { buildReduxReducerSet } from './reducers';
 
-export function createStore() {
-  return createReduxStore(buildReduxReducerSet());
+export function createRoot(Container: any) {
+  return (
+    <Provider store={createStore(buildReduxReducerSet())}>
+      <Container />
+    </Provider>
+  );
 }

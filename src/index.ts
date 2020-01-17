@@ -22,6 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-export { createContainer, CreateContainerOptions } from './containers';
+export { createContainer } from './containers';
 export { createReducer } from './reducers';
-export { createStore } from './store';
+export { createRoot } from './root';

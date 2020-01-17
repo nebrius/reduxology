@@ -25,12 +25,12 @@ SOFTWARE.
 const state = Symbol('state');
 
 export class State {
-
   private [state]: Record<string, any>;
 
   constructor(rawState: Record<string, any>) {
     this[state] = rawState;
   }
+
   public getState(id: string): any {
     if (!this[state].hasOwnProperty(id)) {
       throw new Error(`State id "${id}" does not exist`);
