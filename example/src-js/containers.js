@@ -21,8 +21,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-import { render } from "react-dom";
-import { createRoot } from "redux-wiring";
-import "./reducers";
-import { AppContainer } from "./containers";
-render(createRoot(AppContainer), document.getElementById("root"));
+import { createContainer } from "redux-wiring";
+import { AppComponent } from "./components";
+import { STATE_PATHS, ACTION_TYPES } from "./types";
+export const AppContainer = createContainer(
+  state => {
+    const appointmentState = state.getState(STATE_PATHS.APPOINTMENTS);
+    return {
+      appointments: appointmentState.appointments
+    };
+  },
+  dispatch => {
+    return {
+      addAppointment(appointment) {
+        dispatch(ACTION_TYPES.ADD_APPOINTMENT, appointment);
+      },
+      cancelAppointment(appointment) {
+        dispatch(ACTION_TYPES.CANCEL_APPOINTMENT, appointment);
+      }
+    };
+  },
+  AppComponent
+);

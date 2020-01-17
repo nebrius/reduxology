@@ -21,8 +21,48 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-import { render } from "react-dom";
-import { createRoot } from "redux-wiring";
-import "./reducers";
-import { AppContainer } from "./containers";
-render(createRoot(AppContainer), document.getElementById("root"));
+import * as React from "react";
+export class AppComponent extends React.Component {
+  constructor() {
+    super(...arguments);
+    this.onClick = () => {
+      this.props.addAppointment({
+        time: Date.now(),
+        duration: 30
+      });
+    };
+  }
+  render() {
+    return (
+      <div>
+        {this.props.appointments.map(appointment => (
+          <AppointmentComponent
+            key={appointment.time}
+            appointment={appointment}
+            cancelAppointment={this.props.cancelAppointment}
+          />
+        ))}
+        <button onClick={this.onClick}>Add Appointment</button>
+      </div>
+    );
+  }
+}
+class AppointmentComponent extends React.Component {
+  constructor() {
+    super(...arguments);
+    this.onClick = () => {
+      this.props.cancelAppointment(this.props.appointment);
+    };
+  }
+  render() {
+    const { time, duration } = this.props.appointment;
+    return (
+      <div>
+        <span>
+          {new Date(time).toString()} ({duration} minutes)
+        </span>
+        <button onClick={this.onClick}>X</button>
+      </div>
+    );
+  }
+}
