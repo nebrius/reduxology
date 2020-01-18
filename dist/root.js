@@ -1,3 +1,4 @@
+"use strict";
 /*
 MIT License
 
@@ -21,25 +22,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
-import { connect } from 'react-redux';
-import { State } from './state';
-import { Action } from './actions';
-import { Dispatch } from 'react';
-
-type MapStateToProps = (state: State) => any;
-type MapDispatchToProps = (dispatch: (action: string, data?: any) => void) => any;
-
-export function createContainer(
-  mapStateToProps: MapStateToProps,
-  mapDispatchToProps: MapDispatchToProps,
-  component: any
-) {
-  return connect(
-    (rawState: any) => mapStateToProps(new State(rawState)),
-    (rawDispatch: Dispatch<any>) => mapDispatchToProps((type, data) => {
-      const rawAction: Action = { type, data };
-      rawDispatch(rawAction);
-    })
-  )(component);
+Object.defineProperty(exports, "__esModule", { value: true });
+const React = require("react");
+const react_redux_1 = require("react-redux");
+const redux_1 = require("redux");
+const reducers_1 = require("./reducers");
+let store;
+function globalDispatch(type, data) {
+    const rawAction = { type, data };
+    store.dispatch(rawAction);
 }
+exports.globalDispatch = globalDispatch;
+function createRoot(Container) {
+    store = redux_1.createStore(reducers_1.buildReduxReducerSet());
+    return (React.createElement(react_redux_1.Provider, { store: store },
+        React.createElement(Container, null)));
+}
+exports.createRoot = createRoot;
+//# sourceMappingURL=root.js.map

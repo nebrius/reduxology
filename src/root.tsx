@@ -24,12 +24,21 @@ SOFTWARE.
 
 import * as React from 'react';
 import { Provider } from 'react-redux';
-import { createStore } from 'redux';
+import { createStore, Store } from 'redux';
 import { buildReduxReducerSet } from './reducers';
+import { Action } from './actions';
+
+let store: Store;
+
+export function globalDispatch(type: string, data: any) {
+  const rawAction: Action = { type, data };
+  store.dispatch(rawAction);
+}
 
 export function createRoot(Container: any) {
+  store = createStore(buildReduxReducerSet());
   return (
-    <Provider store={createStore(buildReduxReducerSet())}>
+    <Provider store={store}>
       <Container />
     </Provider>
   );

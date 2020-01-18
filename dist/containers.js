@@ -1,3 +1,4 @@
+"use strict";
 /*
 MIT License
 
@@ -21,25 +22,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
-import { connect } from 'react-redux';
-import { State } from './state';
-import { Action } from './actions';
-import { Dispatch } from 'react';
-
-type MapStateToProps = (state: State) => any;
-type MapDispatchToProps = (dispatch: (action: string, data?: any) => void) => any;
-
-export function createContainer(
-  mapStateToProps: MapStateToProps,
-  mapDispatchToProps: MapDispatchToProps,
-  component: any
-) {
-  return connect(
-    (rawState: any) => mapStateToProps(new State(rawState)),
-    (rawDispatch: Dispatch<any>) => mapDispatchToProps((type, data) => {
-      const rawAction: Action = { type, data };
-      rawDispatch(rawAction);
-    })
-  )(component);
+Object.defineProperty(exports, "__esModule", { value: true });
+const react_redux_1 = require("react-redux");
+const state_1 = require("./state");
+function createContainer(mapStateToProps, mapDispatchToProps, component) {
+    return react_redux_1.connect((rawState) => mapStateToProps(new state_1.State(rawState)), (rawDispatch) => mapDispatchToProps((type, data) => {
+        const rawAction = { type, data };
+        rawDispatch(rawAction);
+    }))(component);
 }
+exports.createContainer = createContainer;
+//# sourceMappingURL=containers.js.map

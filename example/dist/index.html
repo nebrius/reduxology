@@ -1,4 +1,4 @@
-/*
+<!--
 MIT License
 
 Copyright (c) Bryan Hughes <bryan@nebri.us>
@@ -20,26 +20,15 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/
+-->
 
-import { connect } from 'react-redux';
-import { State } from './state';
-import { Action } from './actions';
-import { Dispatch } from 'react';
-
-type MapStateToProps = (state: State) => any;
-type MapDispatchToProps = (dispatch: (action: string, data?: any) => void) => any;
-
-export function createContainer(
-  mapStateToProps: MapStateToProps,
-  mapDispatchToProps: MapDispatchToProps,
-  component: any
-) {
-  return connect(
-    (rawState: any) => mapStateToProps(new State(rawState)),
-    (rawDispatch: Dispatch<any>) => mapDispatchToProps((type, data) => {
-      const rawAction: Action = { type, data };
-      rawDispatch(rawAction);
-    })
-  )(component);
-}
+<!DOCTYPE html>
+<html>
+<head>
+<title>React Wiring example app</title>
+</head>
+<body>
+<div id="root"></div>
+<script src="app.js"></script>
+</body>
+</html>

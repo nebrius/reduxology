@@ -1,3 +1,4 @@
+"use strict";
 /*
 MIT License
 
@@ -21,25 +22,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
-import { connect } from 'react-redux';
-import { State } from './state';
-import { Action } from './actions';
-import { Dispatch } from 'react';
-
-type MapStateToProps = (state: State) => any;
-type MapDispatchToProps = (dispatch: (action: string, data?: any) => void) => any;
-
-export function createContainer(
-  mapStateToProps: MapStateToProps,
-  mapDispatchToProps: MapDispatchToProps,
-  component: any
-) {
-  return connect(
-    (rawState: any) => mapStateToProps(new State(rawState)),
-    (rawDispatch: Dispatch<any>) => mapDispatchToProps((type, data) => {
-      const rawAction: Action = { type, data };
-      rawDispatch(rawAction);
-    })
-  )(component);
-}
+Object.defineProperty(exports, "__esModule", { value: true });
+var containers_1 = require("./containers");
+exports.createContainer = containers_1.createContainer;
+var reducers_1 = require("./reducers");
+exports.createReducer = reducers_1.createReducer;
+var root_1 = require("./root");
+exports.createRoot = root_1.createRoot;
+exports.globalDispatch = root_1.globalDispatch;
+//# sourceMappingURL=index.js.map
