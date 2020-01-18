@@ -66,24 +66,24 @@ export class Reducer {
   }
 }
 
-export function createReducer(dataId: string, initialData: any): Reducer {
-  if (typeof dataId !== 'string') {
-    throw new Error('"id" argument must be a string');
+export function createReducer(dataType: string, initialData: any): Reducer {
+  if (typeof dataType !== 'string') {
+    throw new Error('"dataType" argument must be a string');
   }
-  if (reducers.hasOwnProperty(dataId)) {
-    throw new Error(`Cannot create reducer at ${dataId} because it is already taken`);
+  if (reducers.hasOwnProperty(dataType)) {
+    throw new Error(`Cannot create reducer at ${dataType} because that type is already taken`);
   }
   const reducer = new Reducer(initialData);
-  reducers[dataId] = reducer;
+  reducers[dataType] = reducer;
   return reducer;
 }
 
 export function buildReduxReducerSet(): ReduxReducer {
   const reducerSet: Record<string, ReduxReducer> = {};
   // tslint:disable forin
-  for (const id in reducers) {
-    const reducer = reducers[id];
-    reducerSet[id] = reducer[reduxReducer];
+  for (const dataType in reducers) {
+    const reducer = reducers[dataType];
+    reducerSet[dataType] = reducer[reduxReducer];
   }
   return combineReducers(reducerSet);
 }
