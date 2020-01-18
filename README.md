@@ -13,9 +13,9 @@
 1. [API](#api)
 1. [License](#license)
 
-Redux Wiring is a library that makes creating Redux-based React applications easier to create by automating a lot of the "wiring" required. In otherwords, this library automates and hides much of the boilerplate necessary in typical Redux apps. In practice, this library is a wrapper for `redux` and `react-redux` in your application, replacing the need to use them directly.
+Redux Wiring is a library that makes creating Redux-based React applications easier to create by automating a lot of the "wiring" required. In otherwords, this library automates and hides much of the boilerplate necessary in typical Redux apps. It also introduces a slightly tweaked model for actions and state, making them more symmetrical and evenly-abstracted.
 
-Redux Wiring is a more-opinionated layer that sits on top of Redux (and React Redux) and removes the need for a lot of Redux biolerplate, at the expense of some flexibility. It also introduces a slightly tweaked model for actions.
+In practice, this library is a wrapper for `redux` and `react-redux` in your application, replacing the need to use them directly.
 
 Since this module is still new, this README is written with the assumption that you already understand the concepts of [React](https://reactjs.org/), [Redux](https://redux.js.org/), and [React-Redux](https://react-redux.js.org/). If this library takes off, I will of course invest in creating better documentation.
 
