@@ -1,5 +1,18 @@
 # Redux Wiring
 
+**Note: this library is still alpha stage and there may be bugs. I'm grateful for any and all issues filed with bugs, feedback, and other thoughts you may have!**
+
+1. [Installation](#installation)
+1. [Usage](#usage)
+    1. [Actions](#actions)
+    1. [State](#state)
+    1. [Reducers](#reducers)
+    1. [Containers](#containers)
+    1. [App Initialization](#app-initialization)
+1. [Motivation](#motivation)
+1. [API](#api)
+1. [License](#license)
+
 Redux Wiring is a library that makes creating Redux-based React applications easier to create by automating a lot of the "wiring" required. In otherwords, this library automates and hides much of the boilerplate necessary in typical Redux apps. In practice, this library is a wrapper for `redux` and `react-redux` in your application, replacing the need to use them directly.
 
 Redux Wiring is a more-opinionated layer that sits on top of Redux (and React Redux) and removes the need for a lot of Redux biolerplate, at the expense of some flexibility. It also introduces a slightly tweaked model for actions.
@@ -93,7 +106,9 @@ export const AppContainer = createContainer(
 );
 ```
 
-### Initialization
+### App Initialization
+
+Redux Wiring provides a helper method called `createRoot` that creates a `<Provider store={store}></Provider` React element for you, and automatically wires the store into it.
 
 ```JavaScript
 import { render } from 'react-dom';
@@ -132,7 +147,7 @@ This library aims to address all of these issues to varying degrees, while keepi
 
 Coming soon!
 
-# License
+## License
 
 MIT License
 
