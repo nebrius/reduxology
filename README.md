@@ -18,9 +18,27 @@ If you're a TypeScript user, you don't need to do anything else. This module is 
 
 ## Usage
 
+From a conceptual perspective, using this library is effectively same as using React+Redux, just with a different syntax. So we'll go through the major concepts and describe how they work here.
+
+For a complete, runnable example, check out the [example in this repo](example/).
+
 ### Actions
 
+There aren't any actual APIs for working with actions in React+Redux, but they're an important concept. In traditional React, an action is an object with a `type` property that reducers use to determine how to react to them. In many ways, actions are a lot like standard events in JavaScript with only minor differences in shape.
+
+In Redux Wiring, actions are modified to look more like events in vanilla JavaScript. In Redux Wiring, actions are not an object with a `type` property, but rather a pair of entities: a string identifying the type of event, and an arbitrary piece of data representing the reset of the action. Containers and reducers both interact with actions with this same abstraction, as we'll see in the sections on reducers and container below.
+
+### State
+
+State has been remixed in Redux Wiring so that it looks a lot like actions, for similar reasons. A _subsection_ of state, i.e. the part of state created by a single reducer, now has an accompanying _data type_. This data type is directly analagous to an action type, and is used to differentiate one subsection of data from another. This is the largest change from typical Redux.
+
+In Redux, this subsection is implicit in the structure of the store for data consumers, and implicit in the `combineReducers` calls for reducers. In Redux Wiring, the data type is used to explicitly define subsections. As we'll see below, consuming state in a container now looks a lot like using a `Map` object, except that there is no setter.
+
 ### Reducers
+
+To create a reducer, we use the `createReducer()` method. We pass in two arguments: the data type, and the data to initialize this reducer with. This method returns an object that we can register _action handlers_ with. An action handler is very similar to an event handler. An action handler listens for a specific action type, and calls the method when the action type is dispatched.
+
+There is are two core differences between an action handler and an event listener. Each action type can only have _one_ action handler associated with it, and `registerActionHandler` will throw an exception if you try to register more than one handler. This is because of the second core difference: action handlers return the new state at the end, whereas event listeners don't return anything. This returned value is the new state created from the old state and the action. Allowing more than one action handler would make the multiple return values ambiguous.
 
 ```JavaScript
 import { createReducer } from 'redux-wiring';
@@ -47,6 +65,10 @@ createReducer('APPOINTMENTS', initData)
 ```
 
 ### Containers
+
+Containers look quite similar to existing containers, except that there is a single method call to `createContainer` instead of a double call to `connect()` and the function it returns. The first argument is mapStateToProps, and the second is mapDispatchToProps, same as in react-redux.
+
+The biggest difference is with the `state` object passed in. In traditional React-Redux the state parameter passed in is a plain ole JavaScript object, but the state object in Redux Wiring is a little different. It's an object with a getter. You call `getState` with a state type, and it returns that piece of state. This mirrors the value returned from the reducer handler passed to `registerActionHandler`.
 
 ```JavaScript
 import { createContainer } from 'redux-wiring';
@@ -105,6 +127,10 @@ Thinking through this more, there is another bit of implicit symmetry here: stat
 In addition to this somewhat muddy view of data dependencies vs data flow, there's also the fact that you just have to do a lot of _stuff_ to connect all the pieces together. When we look at a dependency graph of a codebase, the unidirectional flow of data tends to fall away, and indirect two-way dependencies tend to be common.
 
 This library aims to address all of these issues to varying degrees, while keeping the things about React+Redux that makes them such an amazing way to create UIs.
+
+## API
+
+Coming soon!
 
 # License
 
