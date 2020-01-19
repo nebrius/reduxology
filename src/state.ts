@@ -31,7 +31,7 @@ export class State {
     this[state] = rawState;
   }
 
-  public getState(type: string): any {
+  public getType(type: string): any {
     if (!this[state].hasOwnProperty(type)) {
       throw new Error(`State type "${type}" does not exist`);
     }

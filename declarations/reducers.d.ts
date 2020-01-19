@@ -6,9 +6,9 @@ export declare class Reducer {
     [reduxReducer]: ReduxReducer;
     private [actionHandlers];
     constructor(init: any);
-    registerActionHandler: (actionType: string, listener: ReducerActionListener) => Reducer;
-    unregisterActionHandler: (actionType: string) => void;
-    isActionHandlerRegistered: (actionType: string) => boolean;
+    handle: (actionType: string, listener: ReducerActionListener) => Reducer;
+    removeHandler: (actionType: string) => void;
+    iHandlerRegistered: (actionType: string) => boolean;
 }
 export declare function createReducer(dataType: string, initialData: any): Reducer;
 export declare function buildReduxReducerSet(): ReduxReducer;

@@ -24,6 +24,7 @@ SOFTWARE.
 
 import { Reducer as ReduxReducer, combineReducers } from 'redux';
 import { Action } from './actions';
+import produce from 'immer';
 
 export type ReducerActionListener = (state: any, action: any) => any;
 
@@ -43,13 +44,15 @@ export class Reducer {
         state = init;
       }
       if (this[actionHandlers].hasOwnProperty((action as Action).type)) {
-        return this[actionHandlers][action.type](state, (action as Action).data);
+        return produce(state, (draftState: any) => {
+          return this[actionHandlers][action.type](draftState, (action as Action).data);
+        });
       }
       return state;
     };
   }
 
-  public registerActionHandler = (actionType: string, listener: ReducerActionListener): Reducer => {
+  public handle = (actionType: string, listener: ReducerActionListener): Reducer => {
     if (this[actionHandlers].hasOwnProperty(actionType)) {
       throw new Error(`An action handler for ${actionType} has already been registered`);
     }
@@ -57,11 +60,11 @@ export class Reducer {
     return this;
   }
 
-  public unregisterActionHandler = (actionType: string): void => {
+  public removeHandler = (actionType: string): void => {
     delete this[actionHandlers][actionType];
   }
 
-  public isActionHandlerRegistered = (actionType: string): boolean => {
+  public iHandlerRegistered = (actionType: string): boolean => {
     return this[actionHandlers].hasOwnProperty(actionType);
   }
 }

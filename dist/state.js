@@ -28,7 +28,7 @@ class State {
     constructor(rawState) {
         this[state] = rawState;
     }
-    getState(type) {
+    getType(type) {
         if (!this[state].hasOwnProperty(type)) {
             throw new Error(`State type "${type}" does not exist`);
         }

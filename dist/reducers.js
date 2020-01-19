@@ -25,23 +25,24 @@ SOFTWARE.
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const redux_1 = require("redux");
+const immer_1 = require("immer");
 const reducers = {};
 const reduxReducer = Symbol('reduxReducer');
 const actionHandlers = Symbol('actionHandlers');
 class Reducer {
     constructor(init) {
         this[_a] = {};
-        this.registerActionHandler = (actionType, listener) => {
+        this.handle = (actionType, listener) => {
             if (this[actionHandlers].hasOwnProperty(actionType)) {
                 throw new Error(`An action handler for ${actionType} has already been registered`);
             }
             this[actionHandlers][actionType] = listener;
             return this;
         };
-        this.unregisterActionHandler = (actionType) => {
+        this.removeHandler = (actionType) => {
             delete this[actionHandlers][actionType];
         };
-        this.isActionHandlerRegistered = (actionType) => {
+        this.iHandlerRegistered = (actionType) => {
             return this[actionHandlers].hasOwnProperty(actionType);
         };
         this[reduxReducer] = (state, action) => {
@@ -49,7 +50,9 @@ class Reducer {
                 state = init;
             }
             if (this[actionHandlers].hasOwnProperty(action.type)) {
-                return this[actionHandlers][action.type](state, action.data);
+                return immer_1.default(state, (draftState) => {
+                    return this[actionHandlers][action.type](draftState, action.data);
+                });
             }
             return state;
         };
