@@ -81,9 +81,9 @@ Note: if you do not need to handle any actions and just need the state to exist,
 
 ### Containers
 
-Containers look quite similar to existing containers, except that there is a single method call to `createContainer` instead of a double call to `connect()` and the function it returns. The first argument is mapStateToProps, and the second is mapDispatchToProps, same as in react-redux.
+Containers look quite similar to existing containers, except that there is a single method call to `createContainer()` instead of a double call to `connect()` and the function it returns. The first argument is mapStateToProps, and the second is mapDispatchToProps, same as in react-redux.
 
-The biggest difference is with the `state` object passed in. In traditional React-Redux the state parameter passed in is a plain ole JavaScript object, but the state object in Redux Wiring is a little different. It's an object with a getter. You call `getState` with a state type, and it returns that piece of state. This mirrors the value returned from the reducer handler passed to `registerActionHandler`.
+The biggest difference is with the `state` object passed in. In traditional React-Redux the state parameter passed in is a plain ole JavaScript object, but the state object in Redux Wiring is a little different. It's an object with a getter. You call `state.getType()` with a state type, and it returns that piece of state. This mirrors the value returned from the reducer handler passed to `handle()`.
 
 ```JavaScript
 import { createContainer } from 'redux-wiring';
