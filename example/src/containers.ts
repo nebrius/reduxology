@@ -28,7 +28,7 @@ import { STATE_PATHS, ACTION_TYPES, AppointmentState } from './types';
 
 export const AppContainer = createContainer(
   (state): AppComponentProps => {
-    const appointmentState: AppointmentState = state.getState(STATE_PATHS.APPOINTMENTS);
+    const appointmentState: AppointmentState = state.getType(STATE_PATHS.APPOINTMENTS);
     return {
       appointments: appointmentState.appointments
     };

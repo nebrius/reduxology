@@ -22,15 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import { Reducer as ReduxReducer, combineReducers } from 'redux';
-import { Action } from './actions';
+import { Reducer as ReduxReducer } from 'redux';
 import produce from 'immer';
 
-export type ReducerActionListener = (state: any, action: any) => any;
+export type ReducerActionListener = (state: any, action: any) => void;
 
-const reducers: Record<string, Reducer> = {};
-
-const reduxReducer = Symbol('reduxReducer');
+export const reduxReducer = Symbol('reduxReducer');
 const actionHandlers = Symbol('actionHandlers');
 
 export class Reducer {
@@ -43,9 +40,9 @@ export class Reducer {
       if (typeof state === 'undefined') {
         state = init;
       }
-      if (this[actionHandlers].hasOwnProperty((action as Action).type)) {
+      if (this[actionHandlers].hasOwnProperty(action.type)) {
         return produce(state, (draftState: any) => {
-          return this[actionHandlers][action.type](draftState, (action as Action).data);
+          return this[actionHandlers][action.type](draftState, action.data);
         });
       }
       return state;
@@ -64,29 +61,7 @@ export class Reducer {
     delete this[actionHandlers][actionType];
   }
 
-  public iHandlerRegistered = (actionType: string): boolean => {
+  public isHandlerRegistered = (actionType: string): boolean => {
     return this[actionHandlers].hasOwnProperty(actionType);
   }
-}
-
-export function createReducer(dataType: string, initialData: any): Reducer {
-  if (typeof dataType !== 'string') {
-    throw new Error('"dataType" argument must be a string');
-  }
-  if (reducers.hasOwnProperty(dataType)) {
-    throw new Error(`Cannot create reducer at ${dataType} because that type is already taken`);
-  }
-  const reducer = new Reducer(initialData);
-  reducers[dataType] = reducer;
-  return reducer;
-}
-
-export function buildReduxReducerSet(): ReduxReducer {
-  const reducerSet: Record<string, ReduxReducer> = {};
-  // tslint:disable forin
-  for (const dataType in reducers) {
-    const reducer = reducers[dataType];
-    reducerSet[dataType] = reducer[reduxReducer];
-  }
-  return combineReducers(reducerSet);
 }

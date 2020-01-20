@@ -22,12 +22,53 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-var containers_1 = require("./containers");
-exports.createContainer = containers_1.createContainer;
-var reducers_1 = require("./reducers");
-exports.createReducer = reducers_1.createReducer;
-var root_1 = require("./root");
-exports.createRoot = root_1.createRoot;
-exports.globalDispatch = root_1.globalDispatch;
+const React = require("react");
+const react_redux_1 = require("react-redux");
+const redux_1 = require("redux");
+const state_1 = require("./state");
+const reducer_1 = require("./reducer");
+const reducers = Symbol('reducers');
+const store = Symbol('store');
+class ReduxWiring {
+    constructor() {
+        this[_a] = {};
+        this.createContainer = (mapStateToProps, mapDispatchToProps, component) => {
+            return react_redux_1.connect((rawState) => mapStateToProps(new state_1.State(rawState)), (rawDispatch) => mapDispatchToProps((type, data) => rawDispatch({ type, data })))(component);
+        };
+        this.createReducer = (dataType, initialData) => {
+            if (typeof dataType !== 'string') {
+                throw new Error('"dataType" argument must be a string');
+            }
+            if (this[reducers].hasOwnProperty(dataType)) {
+                throw new Error(`Cannot create reducer at ${dataType} because that type is already taken`);
+            }
+            const reducer = new reducer_1.Reducer(initialData);
+            this[reducers][dataType] = reducer;
+            return reducer;
+        };
+        this.dispatch = (type, data) => {
+            this[store].dispatch({ type, data });
+        };
+        this.createRoot = (Container) => {
+            const reducerSet = {};
+            // tslint:disable forin
+            for (const dataType in this[reducers]) {
+                const reducer = this[reducers][dataType];
+                reducerSet[dataType] = reducer[reducer_1.reduxReducer];
+            }
+            this[store] = redux_1.createStore(redux_1.combineReducers(reducerSet));
+            return (React.createElement(react_redux_1.Provider, { store: this[store] },
+                React.createElement(Container, null)));
+        };
+    }
+}
+exports.ReduxWiring = ReduxWiring;
+_a = reducers;
+const defaultWiring = new ReduxWiring();
+exports.createContainer = defaultWiring.createContainer;
+exports.createReducer = defaultWiring.createReducer;
+exports.createRoot = defaultWiring.createRoot;
+exports.dispatch = defaultWiring.dispatch;
 //# sourceMappingURL=index.js.map

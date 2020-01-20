@@ -31,23 +31,14 @@ const init: AppointmentState = {
 
 createReducer(STATE_PATHS.APPOINTMENTS, init)
 
-  .registerActionHandler(ACTION_TYPES.ADD_APPOINTMENT, (state: AppointmentState, newAppointment: Appointment) => {
-    const newState: AppointmentState = {
-      ...state,
-      appointments: [ ...state.appointments, newAppointment ]
-    };
-    return newState;
+  .handle(ACTION_TYPES.ADD_APPOINTMENT, (state: AppointmentState, newAppointment: Appointment) => {
+    state.appointments.push(newAppointment);
   })
 
-  .registerActionHandler(ACTION_TYPES.CANCEL_APPOINTMENT, (state: AppointmentState, appointment: Appointment) => {
-    const newAppointments = [ ...state.appointments ];
-    const index = newAppointments.indexOf(appointment);
-    if (index !== -1) {
-      newAppointments.splice(index, 1);
+  .handle(ACTION_TYPES.CANCEL_APPOINTMENT, (state: AppointmentState, appointmentToCancel: Appointment) => {
+    for (let i = 0; i < state.appointments.length; i++) {
+      if (state.appointments[i].time === appointmentToCancel.time) {
+        state.appointments.splice(i, 1);
+      }
     }
-    const newState: AppointmentState = {
-      ...state,
-      appointments: newAppointments
-    };
-    return newState;
   });
