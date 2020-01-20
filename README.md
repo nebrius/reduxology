@@ -53,28 +53,28 @@ To create a reducer, we use the `createReducer()` method. We pass in two argumen
 
 There is are two core differences between an action handler and an event listener. Each action type can only have _one_ action handler associated with it, and `registerActionHandler` will throw an exception if you try to register more than one handler. This is because of the second core difference: action handlers return the new state at the end, whereas event listeners don't return anything. This returned value is the new state created from the old state and the action. Allowing more than one action handler would make the multiple return values ambiguous.
 
+Each action handler uses [Immer](https://immerjs.github.io/immer/docs/introduction) under the hood, which means you don't have to create a complete copy of the state, or use a library like Immutable.js. You can just modify properties as you see fit and the rest is taken care of.
+
 ```JavaScript
 import { createReducer } from 'redux-wiring';
 
-const initData = {
+const init = {
   appointments: []
 };
 
-createReducer('APPOINTMENTS', initData)
-  .registerActionHandler('ADD_APPOINTMENT', (state, newAppointment) => {
-      return {
-        ...state,
-        appointments: [ ...state.appointments, newAppointment ]
-      };
-    })
-  .registerActionHandler('CANCEL_APPOINTMENT', (state, appointment) => {
-      const index = state.appointments.indexOf(appointment);
-      state.appointments.splice(index, 1);
-      return {
-        ...state,
-        appointments: state.appointments
-      };
-    });
+createReducer('APPOINTMENTS', init)
+
+  .handle('ADD_APPOINTMENT', (state, newAppointment) => {
+    state.appointments.push(newAppointment);
+  })
+
+  .handle('CANCEL_APPOINTMENT', (state, appointmentToCancel) => {
+    for (let i = 0; i < state.appointments.length; i++) {
+      if (state.appointments[i].time === appointmentToCancel.time) {
+        state.appointments.splice(i, 1);
+      }
+    }
+  });
 ```
 
 Note: if you do not need to handle any actions and just need the state to exist, you do not need to make any calls to `registerActionHandler`.
@@ -91,8 +91,9 @@ import { AppComponent } from './components';
 
 export const AppContainer = createContainer(
   (state) => {
-    const appointmentState = state.getState('APPOINTMENTS');
-    return { appointments: appointmentState.appointments };
+    return {
+      appointments: state.getType('APPOINTMENTS').appointments
+    };
   },
   (dispatch) => {
     return {
