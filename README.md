@@ -128,17 +128,98 @@ render(
 
 ## Motivation
 
-I've written many React apps, most small, some large. I've also taught React to a number of folks. One of the things I see more junior developers get hung up on is wiring the app together.
+I've written many React apps, most small, some large. I've also taught React to a number of folks. One of the things I see more junior developers get hung up on is wiring all the pieces together.
 
-When we talk about React+Redux and separation of concerns, we tend to only talk about the _data flow_ between parts of a React+Redux app. And React+Redux is _very_ good at constraining data flow such that it's easy to test and reason about.
+When we talk about React+Redux and separation of concerns, we tend to only talk about the _data flow_ separation between parts of a React+Redux app. And React+Redux is _very_ good at constraining data flow such that it's easy to test and reason about.
 
-But what about _data dependency_ (as well as _code depdency_)? These are...less one directional. To illustrate this, let's discuss three different areas: reducers, containers, and actions.
+But what about _data dependency_? These are...less one directional. To illustrate this, let's discuss three different areas: reducers, containers, and actions.
 
-Let's start by talking about actions. In a typical Redux application, we use _action creators_ to, well, create an action. These are effectivey helper functions that take in specific parameters and create a action (which is really just an object with those parameters, and a `type` property to indicate the type). These are a nice encapsulation that makes it easier to create actions, which happens in a container. But what about _consuming_ actions, which happens in reducers? There is no equivalent helper to consume an action, which undermines the utility of these helpers, since there is still a _data dependency_ on the output of an action creator on an external piece of code.
+### Actions
 
-Next, let's talk about reducers. Reducers take in the applications current state and an action, and produce a new state. One of the nice ways reducers are encapsulated is that each reducer is only responsible for a _subsection_ of data, and don't need to know anything about the data in the rest of the store. This is really great, and one of the things I love most about them. This breaks down in one subtle way though, and that has to do with _where_ this data exists in the store. The data has to exist somewhere, so that's not the issue. The issue has to do with how this location is _expressed_. Reducers know about this location by how they are combined together with the `combineReducers` calls. The location ends up being implicit, and one of the nicities of this is that you can migrate data produced by a reducer from one location to another without modifying the reducer. But what about those that _consume_ this data, namely containers? There is no equivalent mechanism to abstract the data from the location of that data. Worse, the way this location is defined cannot be reused between reducers and containers. This is especially true if you're using TypeScript, and indeed this is the single greatest struggle I've had with TypeScript and React+Redux, because I had to effectively duplicate types manually between these two parts of the application.
+Let's start by talking about actions. In a typical Redux application, we use _action creators_ to, well, create an action. These are effectivey helper functions that take in specific parameters and create a action (which is really just an object with those parameters, and a `type` property to indicate the type). An example action creator for the ADD_APPOINTMENT action illustrated above would look like:
 
-So now we can see that there is an issue with _symmetry_ here. The way that actions are created vs consumed is different, with one side being well abstracted and the other not. The way that data is created vs consumed is the same, with one side being well abstracted and the other not. This imbalance diminishes the usefulness of these abstractions, and IME has led to confusion among more junior developers. This partial abstraction makes a lot of the code look like magic, while not understanding why some things require manual coding and others don't.
+```JavaScript
+function createAddAppointmentAction(time, duration) {
+  return {
+    type: 'ADD_APPOINTMENT',
+    appointment: {
+      time,
+      duration
+    }
+  };
+}
+```
+
+These are a nice encapsulation that makes it easier to create actions, which happens in a container. In addition, the container creating the action doesn't need to know the shape of the action object, a nice encapsulation!
+
+But what about _consuming_ actions, which happens in reducers? There is no equivalent helper to consume an action, which undermines the utility of these helpers, since there is still a _data dependency_ on the output of an action creator inside the reducer.
+
+### Reducers and Containers
+
+Next, let's talk about reducers. Reducers take in the application's current state and an action, and produce a new state. One of the nice ways reducers are encapsulated is that each reducer is only responsible for a _subsection_ of data, and don't need to know anything about the data in the rest of the store. This is really great, and one of the things I love most about them. Below is an example:
+
+```JavaScript
+const appointmentsReducer = (state, action) => {
+  switch (action.type) {
+    case 'ADD_APPOINTMENT':
+      return {
+        ...state,
+        appointments: [ ...state.appointments, action.appointment ]
+      };
+    case 'CANCEL_APPOINTMENT':
+      for (let i = 0; i < state.appointments.length; i++) {
+        if (state.appointments[i].time === appointmentToCancel.time) {
+          state = {
+            ...state,
+            appointments: [ ...appointments ]
+          };
+          state.appointments.splice(i, 1);
+        }
+      }
+      return state;
+  }
+};
+
+combineReducers({
+  appointments: appointmentsReducer,
+  ...
+});
+```
+
+This approach breaks down in one subtle way though, and that has to do with _where_ this data exists in the store. The data has to exist somewhere, so that's not the issue. The issue has to do with how this location is _expressed_.
+
+Reducers know about this location by how they are combined together with the `combineReducers` calls. The location ends up being implicit, and one of the nicities of this is that you can migrate data produced by a reducer from one location to another without modifying the reducer itself, just the `combineReducers` call.
+
+But what about those that _consume_ this data, namely containers? There is no equivalent mechanism to abstract the data from the location of that data, as we can see in the related container below:
+
+```JavaScript
+function mapStateToProps(appState) {
+  return {
+     // Note the full path to data shows up here. Knowing which path to use requires
+     // knowledge of how the various `combineReducers` calls are scaffolded
+    appointments: appState.appointments.appointments
+  };
+}
+
+function mapDispatchToProps(dispath) {
+  return {
+    addAppointment(appointment) {
+      dispatch(createAddAppointmentAction(appointment));
+    },
+    cancelAppointment(appointment) {
+      dispatch(createCancelAppointmentAction(appointment));
+    }
+  };
+}
+
+const AppContainer = connect(mapStateToPropsA, mapDispatchToPropsA)(AppComponent);
+```
+
+Worse, the way this location is defined cannot be reused between reducers and containers. You have to manually verify the paths are correct on both sides by hand without the aid of autocompletion, _even if you're using TypeScript_. Indeed this is the single greatest struggle I've had with TypeScript and React+Redux, because I had to effectively duplicate types manually between these two parts of the application.
+
+### Stating the problem clearly
+
+So now we can see that there is an issue with _symmetry_ here. The way that actions are created vs consumed is different, with one side being well abstracted and the other not. The way that data is created vs consumed is the same, with one side being well abstracted and the other not. This imbalance diminishes the usefulness of these abstractions, and in my experience has led to confusion among more junior developers. This partial abstraction makes a lot of the code look like magic, and can lead to not understanding why some things require manual coding and others don't.
 
 Thinking through this more, there is another bit of implicit symmetry here: state and actions are both data that flows through the system. They do represent very different types of data, so these are not things that should be merged. But it is an observation that can influence API design.
 
