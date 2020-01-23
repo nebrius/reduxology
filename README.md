@@ -1,26 +1,22 @@
-# Redux Wiring
+# Redux Wiring <!-- omit in toc -->
 
 **Note: this library is still alpha stage and there may be bugs. I'm grateful for any and all issues filed with bugs, feedback, and other thoughts you may have!**
 
-- [Redux Wiring](#redux-wiring)
-  - [Installation](#installation)
-  - [Usage](#usage)
-    - [Actions](#actions)
-    - [State](#state)
-    - [Reducers](#reducers)
-    - [Containers](#containers)
-    - [App Initialization](#app-initialization)
-  - [Motivation](#motivation)
-    - [Actions](#actions-1)
-    - [Reducers and Containers](#reducers-and-containers)
-    - [Conclusion](#conclusion)
-  - [API](#api)
-    - [createContainer(mapStateToProps, mapDispatchToProps, component) => Container](#createcontainermapstatetoprops-mapdispatchtoprops-component--container)
-    - [createReducer()](#createreducer)
-    - [createRoot()](#createroot)
-    - [dispatch()](#dispatch)
-    - [new ReduxWiring()](#new-reduxwiring)
-  - [License](#license)
+1. [Installation](#installation)
+2. [Usage](#usage)
+   1. [Actions](#actions)
+   2. [State](#state)
+   3. [Reducers](#reducers)
+   4. [Containers](#containers)
+   5. [App Initialization](#app-initialization)
+3. [Motivation](#motivation)
+4. [API](#api)
+   1. [createContainer(mapStateToProps, mapDispatchToProps, component) => Container](#createcontainermapstatetoprops-mapdispatchtoprops-component--container)
+   2. [createReducer()](#createreducer)
+   3. [createRoot()](#createroot)
+   4. [dispatch()](#dispatch)
+   5. [new ReduxWiring()](#new-reduxwiring)
+5. [License](#license)
 
 Redux Wiring is a library that makes creating Redux-based React applications easier to create by automating a lot of the "wiring" required. In otherwords, this library automates and hides much of the boilerplate necessary in typical Redux apps. It also introduces a slightly tweaked model for actions and state, making them more symmetrical and evenly-abstracted.
 
@@ -48,17 +44,17 @@ For a complete example, check out the [example in this repo](example/). For a re
 
 There aren't any actual APIs for working with actions in React+Redux, but they're an important concept. In traditional React, an action is an object with a `type` property that reducers use to determine how to react to them. In many ways, actions are a lot like standard events in JavaScript with only minor differences in shape.
 
-In Redux Wiring, actions are modified to look more like events in vanilla JavaScript. In Redux Wiring, actions are not an object with a `type` property, but rather a pair of entities: a string identifying the type of event, and an arbitrary piece of data representing the reset of the action. Containers and reducers both interact with actions with this same abstraction, as we'll see in the sections on reducers and container below.
+In Redux Wiring, actions are modified to look more like events in vanilla JavaScript. In Redux Wiring, actions are not an object with a `type` property, but rather a relationship between a string identifying the type of event, and arbitrary piece(s) of data representing the rest of the action. Containers and reducers both interact with actions with this same abstraction, as we'll see in the sections on reducers and containers below.
 
 ### State
 
-State has been remixed in Redux Wiring so that it looks a lot like actions, for similar reasons. A _subsection_ of state, i.e. the part of state created by a single reducer, now has an accompanying _data type_. This data type is directly analagous to an action type, and is used to differentiate one subsection of data from another. This is the largest change from typical Redux.
+State has been remixed in Redux Wiring so that it looks a lot like actions, for similar reasons. A _slice_ of state, i.e. the part of state created by a single reducer, now has an accompanying _slice type_. This slice type is directly analagous to an action type, and is used to differentiate one slice of data from another. This is the largest change from typical Redux.
 
-In Redux, this subsection is implicit in the structure of the store for data consumers, and implicit in the `combineReducers` calls for reducers. In Redux Wiring, the data type is used to explicitly define subsections. As we'll see below, consuming state in a container now looks a lot like using a `Map` object, except that there is no setter.
+In Redux, the location of this slice in the store is implicit in the structure of the store for data consumers, and implicit in the `combineReducers` calls for reducers. In Redux Wiring, the slice type is used to explicitly define the slice location. As we'll see below, consuming state in a container now looks a lot like using a `Map` object, except that there is no setter.
 
 ### Reducers
 
-To create a reducer, we use the `createReducer()` method. We pass in two arguments: the data type, and the data to initialize this reducer with. This method returns an object that we can register _action handlers_ with. An action handler is very similar to an event handler. An action handler listens for a specific action type, and calls the method when the action type is dispatched.
+To create a reducer, we use the `createReducer()` method. We pass in two arguments: the slice type, and the data to initialize this reducer with. This method returns an object that we can register _action handlers_ with. An action handler is very similar to an event handler. An action handler listens for a specific action type, and calls the method when the action type is dispatched.
 
 There is are two core differences between an action handler and an event listener. Each action type can only have _one_ action handler associated with it, and `registerActionHandler` will throw an exception if you try to register more than one handler. This is because of the second core difference: action handlers return the new state at the end, whereas event listeners don't return anything. This returned value is the new state created from the old state and the action. Allowing more than one action handler would make the multiple return values ambiguous.
 
@@ -73,8 +69,8 @@ const init = {
 
 createReducer('APPOINTMENTS', init)
 
-  .handle('ADD_APPOINTMENT', (state, newAppointment) => {
-    state.appointments.push(newAppointment);
+  .handle('ADD_APPOINTMENT', (state, time, duration) => {
+    state.appointments.push({ time, duration });
   })
 
   .handle('CANCEL_APPOINTMENT', (state, appointmentToCancel) => {
@@ -101,13 +97,13 @@ import { AppComponent } from './components';
 export const AppContainer = createContainer(
   (state) => {
     return {
-      appointments: state.getType('APPOINTMENTS').appointments
+      appointments: state.getSlice('APPOINTMENTS').appointments
     };
   },
   (dispatch) => {
     return {
-      addAppointment(appointment) {
-        dispatch('ADD_APPOINTMENT', appointment);
+      addAppointment(time, duration) {
+        dispatch('ADD_APPOINTMENT', time, duration);
       },
       cancelAppointment(appointment) {
         dispatch('CANCEL_APPOINTMENT', appointment);
@@ -143,7 +139,7 @@ When we talk about React+Redux and separation of concerns, we tend to only talk 
 
 But what about _data dependency_? These are...less one directional. To illustrate this, let's discuss three different areas: reducers, containers, and actions.
 
-### Actions
+### Actions <!-- omit in toc -->
 
 Let's start by talking about actions. In a typical Redux application, we use _action creators_ to, well, create an action. These are effectivey helper functions that take in specific parameters and create a action (which is really just an object with those parameters, and a `type` property to indicate the type). An example action creator for the ADD_APPOINTMENT action illustrated above would look like:
 
@@ -163,7 +159,7 @@ These are a nice encapsulation that makes it easier to create actions, which hap
 
 But what about _consuming_ actions, which happens in reducers? There is no equivalent helper to consume an action, which undermines the utility of these helpers, since there is still a _data dependency_ on the output of an action creator inside the reducer.
 
-### Reducers and Containers
+### Reducers and Containers <!-- omit in toc -->
 
 Next, let's talk about reducers. Reducers take in the application's current state and an action, and produce a new state. One of the nice ways reducers are encapsulated is that each reducer is only responsible for a _subsection_ of data, and don't need to know anything about the data in the rest of the store. This is really great, and one of the things I love most about them. Below is an example:
 
@@ -226,7 +222,7 @@ const AppContainer = connect(mapStateToProps, mapDispatchToProps)(AppComponent);
 
 Worse, the way this location is defined cannot be reused between reducers and containers. You have to manually verify the paths are correct on both sides by hand without the aid of autocompletion, _even if you're using TypeScript_. Indeed this is the single greatest struggle I've had with TypeScript and React+Redux, because I had to effectively duplicate types manually between these two parts of the application.
 
-### Conclusion
+### Conclusion <!-- omit in toc -->
 
 So now we can see that there is an issue with _symmetry_ here. The way that actions are created vs consumed is different, with one side being well abstracted and the other not. The way that data is created vs consumed is the same, with one side being well abstracted and the other not. This imbalance diminishes the usefulness of these abstractions, and in my experience has led to confusion among more junior developers. This partial abstraction makes a lot of the code look like magic, and can lead to not understanding why some things require manual coding and others don't.
 
