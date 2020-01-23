@@ -2,16 +2,25 @@
 
 **Note: this library is still alpha stage and there may be bugs. I'm grateful for any and all issues filed with bugs, feedback, and other thoughts you may have!**
 
-1. [Installation](#installation)
-1. [Usage](#usage)
-    1. [Actions](#actions)
-    1. [State](#state)
-    1. [Reducers](#reducers)
-    1. [Containers](#containers)
-    1. [App Initialization](#app-initialization)
-1. [Motivation](#motivation)
-1. [API](#api)
-1. [License](#license)
+- [Redux Wiring](#redux-wiring)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Actions](#actions)
+    - [State](#state)
+    - [Reducers](#reducers)
+    - [Containers](#containers)
+    - [App Initialization](#app-initialization)
+  - [Motivation](#motivation)
+    - [Actions](#actions-1)
+    - [Reducers and Containers](#reducers-and-containers)
+    - [Conclusion](#conclusion)
+  - [API](#api)
+    - [createContainer(mapStateToProps, mapDispatchToProps, component) => Container](#createcontainermapstatetoprops-mapdispatchtoprops-component--container)
+    - [createReducer()](#createreducer)
+    - [createRoot()](#createroot)
+    - [dispatch()](#dispatch)
+    - [new ReduxWiring()](#new-reduxwiring)
+  - [License](#license)
 
 Redux Wiring is a library that makes creating Redux-based React applications easier to create by automating a lot of the "wiring" required. In otherwords, this library automates and hides much of the boilerplate necessary in typical Redux apps. It also introduces a slightly tweaked model for actions and state, making them more symmetrical and evenly-abstracted.
 
@@ -212,12 +221,12 @@ function mapDispatchToProps(dispath) {
   };
 }
 
-const AppContainer = connect(mapStateToPropsA, mapDispatchToPropsA)(AppComponent);
+const AppContainer = connect(mapStateToProps, mapDispatchToProps)(AppComponent);
 ```
 
 Worse, the way this location is defined cannot be reused between reducers and containers. You have to manually verify the paths are correct on both sides by hand without the aid of autocompletion, _even if you're using TypeScript_. Indeed this is the single greatest struggle I've had with TypeScript and React+Redux, because I had to effectively duplicate types manually between these two parts of the application.
 
-### Stating the problem clearly
+### Conclusion
 
 So now we can see that there is an issue with _symmetry_ here. The way that actions are created vs consumed is different, with one side being well abstracted and the other not. The way that data is created vs consumed is the same, with one side being well abstracted and the other not. This imbalance diminishes the usefulness of these abstractions, and in my experience has led to confusion among more junior developers. This partial abstraction makes a lot of the code look like magic, and can lead to not understanding why some things require manual coding and others don't.
 
@@ -229,7 +238,132 @@ This library aims to address all of these issues to varying degrees, while keepi
 
 ## API
 
-Coming soon!
+### createContainer(mapStateToProps, mapDispatchToProps, component) => Container
+
+Creates a container, in the React Redux sense, for use as a React component.
+
+_Arguments:_
+
+<table>
+  <thead>
+    <tr>
+      <th>Argument</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>mapStateToProps</td>
+      <td>Function</td>
+      <td>A mapStateToProps function, passed directly to React Redux' `connect()` method. <a href="https://react-redux.js.org/api/connect#mapstatetoprops-state-ownprops-object">See the React Redux documentation for details.</a></td>
+    </tr>
+    <tr>
+      <td>mapDispatchToProps</td>
+      <td>Function</td>
+      <td>A mapDispatchToProps function, analagous to the <a href="https://react-redux.js.org/api/connect#mapdispatchtoprops-object-dispatch-ownprops-object">function passed to `connect()`</a> in React Redux. The dispatch argument passed to this function is slightly different though. See the global<a href="#dispatch">dispatch function</a> for details.</a></td>
+    </tr>
+    <tr>
+      <td>component</td>
+      <td>React Component</td>
+      <td>A React component to wrap in this container, analagous to the component argument passed to the function returned from `connect()` in React Redux</td>
+    </tr>
+  </tbody>
+</table>
+
+_Return value:_
+
+A React Redux container, which can be used directly as a React component. This is the same value returned from React Redux' `connect()()` methods. [See the React Redux documentation for more information](https://react-redux.js.org/api/connect#connect-returns).
+
+### createReducer()
+
+_Arguments:_
+
+<table>
+  <thead>
+    <tr>
+      <th>Argument</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+_Return value:_
+
+### createRoot()
+
+_Arguments:_
+
+<table>
+  <thead>
+    <tr>
+      <th>Argument</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+_Return value:_
+
+### dispatch()
+
+_Arguments:_
+
+<table>
+  <thead>
+    <tr>
+      <th>Argument</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+_Return value:_
+
+### new ReduxWiring()
+
+_Arguments:_
+
+<table>
+  <thead>
+    <tr>
+      <th>Argument</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
 
 ## License
 
