@@ -28,15 +28,15 @@ import { STATE_PATHS, ACTION_TYPES, AppointmentState } from './types';
 
 export const AppContainer = createContainer(
   (state): AppComponentProps => {
-    const appointmentState: AppointmentState = state.getType(STATE_PATHS.APPOINTMENTS);
+    const appointmentState: AppointmentState = state.getSlice(STATE_PATHS.APPOINTMENTS);
     return {
       appointments: appointmentState.appointments
     };
   },
   (dispatch): AppComponentDispatch => {
     return {
-      addAppointment(appointment) {
-        dispatch(ACTION_TYPES.ADD_APPOINTMENT, appointment);
+      addAppointment(time, duration) {
+        dispatch(ACTION_TYPES.ADD_APPOINTMENT, time, duration);
       },
       cancelAppointment(appointment) {
         dispatch(ACTION_TYPES.CANCEL_APPOINTMENT, appointment);

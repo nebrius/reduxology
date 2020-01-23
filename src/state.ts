@@ -31,10 +31,10 @@ export class State {
     this[state] = rawState;
   }
 
-  public getType(type: string): any {
-    if (!this[state].hasOwnProperty(type)) {
-      throw new Error(`State type "${type}" does not exist`);
+  public getSlice(slice: string): any {
+    if (!this[state].hasOwnProperty(slice)) {
+      throw new Error(`Slice "${slice}" does not exist`);
     }
-    return this[state][type];
+    return this[state][slice];
   }
 }

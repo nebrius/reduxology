@@ -28,11 +28,11 @@ class State {
     constructor(rawState) {
         this[state] = rawState;
     }
-    getType(type) {
-        if (!this[state].hasOwnProperty(type)) {
-            throw new Error(`State type "${type}" does not exist`);
+    getSlice(slice) {
+        if (!this[state].hasOwnProperty(slice)) {
+            throw new Error(`Slice "${slice}" does not exist`);
         }
-        return this[state][type];
+        return this[state][slice];
     }
 }
 exports.State = State;

@@ -30,7 +30,7 @@ import { State } from './state';
 import { Reducer, reduxReducer } from './reducer';
 
 type MapStateToProps = (state: State) => any;
-type MapDispatchToProps = (dispatch: (action: string, data?: any) => void) => any;
+type MapDispatchToProps = (dispatch: (action: string, ...data: any[]) => void) => any;
 
 const reducers = Symbol('reducers');
 const store = Symbol('store');
@@ -47,23 +47,23 @@ export class ReduxWiring {
   ) => {
     return connect(
       (rawState: any) => mapStateToProps(new State(rawState)),
-      (rawDispatch: Dispatch<any>) => mapDispatchToProps((type, data) => rawDispatch({ type, data }))
+      (rawDispatch: Dispatch<any>) => mapDispatchToProps((type, ...data) => rawDispatch({ type, data }))
     )(component);
   }
 
-  public createReducer = (dataType: string, initialData: any): Reducer => {
-    if (typeof dataType !== 'string') {
-      throw new Error('"dataType" argument must be a string');
+  public createReducer = (slice: string, initialData: any): Reducer => {
+    if (typeof slice !== 'string') {
+      throw new Error('"slice" argument must be a string');
     }
-    if (this[reducers].hasOwnProperty(dataType)) {
-      throw new Error(`Cannot create reducer at ${dataType} because that type is already taken`);
+    if (this[reducers].hasOwnProperty(slice)) {
+      throw new Error(`Cannot create reducer at ${slice} because that slice is already taken`);
     }
     const reducer = new Reducer(initialData);
-    this[reducers][dataType] = reducer;
+    this[reducers][slice] = reducer;
     return reducer;
   }
 
-  public dispatch = (type: string, data: any) => {
+  public dispatch = (type: string, ...data: any[]) => {
     this[store].dispatch({ type, data });
   }
 

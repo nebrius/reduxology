@@ -31,8 +31,8 @@ const init: AppointmentState = {
 
 createReducer(STATE_PATHS.APPOINTMENTS, init)
 
-  .handle(ACTION_TYPES.ADD_APPOINTMENT, (state: AppointmentState, newAppointment: Appointment) => {
-    state.appointments.push(newAppointment);
+  .handle(ACTION_TYPES.ADD_APPOINTMENT, (state: AppointmentState, time: number, duration: number) => {
+    state.appointments.push({ time, duration });
   })
 
   .handle(ACTION_TYPES.CANCEL_APPOINTMENT, (state: AppointmentState, appointmentToCancel: Appointment) => {

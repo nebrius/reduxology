@@ -30,7 +30,7 @@ export interface AppComponentProps {
 }
 
 export interface AppComponentDispatch {
-  addAppointment: (appointment: Appointment) => void;
+  addAppointment: (time: number, duration: number) => void;
   cancelAppointment: (appointment: Appointment) => void;
 }
 
@@ -50,10 +50,7 @@ export class AppComponent extends React.Component<AppComponentProps & AppCompone
   }
 
   private onClick = () => {
-    this.props.addAppointment({
-      time: Date.now(),
-      duration: 30
-    });
+    this.props.addAppointment(Date.now(), 30);
   }
 }
 

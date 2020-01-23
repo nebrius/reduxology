@@ -35,20 +35,20 @@ class ReduxWiring {
     constructor() {
         this[_a] = {};
         this.createContainer = (mapStateToProps, mapDispatchToProps, component) => {
-            return react_redux_1.connect((rawState) => mapStateToProps(new state_1.State(rawState)), (rawDispatch) => mapDispatchToProps((type, data) => rawDispatch({ type, data })))(component);
+            return react_redux_1.connect((rawState) => mapStateToProps(new state_1.State(rawState)), (rawDispatch) => mapDispatchToProps((type, ...data) => rawDispatch({ type, data })))(component);
         };
-        this.createReducer = (dataType, initialData) => {
-            if (typeof dataType !== 'string') {
-                throw new Error('"dataType" argument must be a string');
+        this.createReducer = (slice, initialData) => {
+            if (typeof slice !== 'string') {
+                throw new Error('"slice" argument must be a string');
             }
-            if (this[reducers].hasOwnProperty(dataType)) {
-                throw new Error(`Cannot create reducer at ${dataType} because that type is already taken`);
+            if (this[reducers].hasOwnProperty(slice)) {
+                throw new Error(`Cannot create reducer at ${slice} because that slice is already taken`);
             }
             const reducer = new reducer_1.Reducer(initialData);
-            this[reducers][dataType] = reducer;
+            this[reducers][slice] = reducer;
             return reducer;
         };
-        this.dispatch = (type, data) => {
+        this.dispatch = (type, ...data) => {
             this[store].dispatch({ type, data });
         };
         this.createRoot = (Container) => {

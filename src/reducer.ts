@@ -25,7 +25,7 @@ SOFTWARE.
 import { Reducer as ReduxReducer } from 'redux';
 import produce from 'immer';
 
-export type ReducerActionListener = (state: any, action: any) => void;
+export type ReducerActionListener = (state: any, ...actionData: any[]) => void;
 
 export const reduxReducer = Symbol('reduxReducer');
 const actionHandlers = Symbol('actionHandlers');
@@ -42,7 +42,7 @@ export class Reducer {
       }
       if (this[actionHandlers].hasOwnProperty(action.type)) {
         return produce(state, (draftState: any) => {
-          return this[actionHandlers][action.type](draftState, action.data);
+          return this[actionHandlers][action.type](draftState, ...action.data);
         });
       }
       return state;

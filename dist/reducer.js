@@ -49,7 +49,7 @@ class Reducer {
             }
             if (this[actionHandlers].hasOwnProperty(action.type)) {
                 return immer_1.default(state, (draftState) => {
-                    return this[actionHandlers][action.type](draftState, action.data);
+                    return this[actionHandlers][action.type](draftState, ...action.data);
                 });
             }
             return state;
