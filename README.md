@@ -41,7 +41,7 @@ If you're a TypeScript user, you don't need to do anything else. This module is 
 
 From a conceptual perspective, using this library is effectively same as using React+Redux, just with a different syntax. So we'll go through the major concepts and describe how they work here.
 
-For a complete example, check out the [example in this repo](example/). For a real-world application, check out the renderer part of my Electron.js application [Contact Scheduler](https://github.com/nebrius/contact-scheduler/tree/upgrade/renderer).
+For a complete example, check out the [example in this repo](example/). For a real-world application, check out the renderer part of my Electron.js application [Contact Scheduler](https://github.com/nebrius/contact-scheduler/tree/master/renderer).
 
 ### Actions
 
