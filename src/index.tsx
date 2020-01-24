@@ -29,7 +29,7 @@ import { createStore, Store, Reducer as ReduxReducer, combineReducers } from 're
 import { State } from './state';
 import { Reducer, reduxReducer } from './reducer';
 
-type MapStateToProps = (state: State) => any;
+type MapStateToProps = (getSlice: (slice: string) => any) => any;
 type MapDispatchToProps = (dispatch: (action: string, ...data: any[]) => void) => any;
 
 const reducers = Symbol('reducers');
@@ -46,7 +46,7 @@ export class Reduxology {
     component: any
   ) => {
     return connect(
-      (rawState: any) => mapStateToProps(new State(rawState)),
+      (rawState: any) => mapStateToProps((new State(rawState)).getSlice),
       (rawDispatch: Dispatch<any>) => mapDispatchToProps((type, ...data) => rawDispatch({ type, data }))
     )(component);
   }

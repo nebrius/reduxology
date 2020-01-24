@@ -31,7 +31,7 @@ export class State {
     this[state] = rawState;
   }
 
-  public getSlice(slice: string): any {
+  public getSlice = (slice: string): any => {
     if (!this[state].hasOwnProperty(slice)) {
       throw new Error(`Slice "${slice}" does not exist`);
     }

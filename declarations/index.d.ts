@@ -1,7 +1,6 @@
 /// <reference types="react" />
-import { State } from './state';
 import { Reducer } from './reducer';
-declare type MapStateToProps = (state: State) => any;
+declare type MapStateToProps = (getSlice: (slice: string) => any) => any;
 declare type MapDispatchToProps = (dispatch: (action: string, ...data: any[]) => void) => any;
 declare const reducers: unique symbol;
 declare const store: unique symbol;

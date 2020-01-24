@@ -27,8 +27,8 @@ import { AppComponent, AppComponentProps, AppComponentDispatch } from './compone
 import { STATE_PATHS, ACTION_TYPES, AppointmentState } from './types';
 
 export const AppContainer = createContainer(
-  (state): AppComponentProps => {
-    const appointmentState: AppointmentState = state.getSlice(STATE_PATHS.APPOINTMENTS);
+  (getSlice): AppComponentProps => {
+    const appointmentState: AppointmentState = getSlice(STATE_PATHS.APPOINTMENTS);
     return {
       appointments: appointmentState.appointments
     };

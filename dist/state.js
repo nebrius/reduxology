@@ -26,13 +26,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const state = Symbol('state');
 class State {
     constructor(rawState) {
+        this.getSlice = (slice) => {
+            if (!this[state].hasOwnProperty(slice)) {
+                throw new Error(`Slice "${slice}" does not exist`);
+            }
+            return this[state][slice];
+        };
         this[state] = rawState;
-    }
-    getSlice(slice) {
-        if (!this[state].hasOwnProperty(slice)) {
-            throw new Error(`Slice "${slice}" does not exist`);
-        }
-        return this[state][slice];
     }
 }
 exports.State = State;
