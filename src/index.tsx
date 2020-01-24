@@ -35,7 +35,7 @@ type MapDispatchToProps = (dispatch: (action: string, ...data: any[]) => void) =
 const reducers = Symbol('reducers');
 const store = Symbol('store');
 
-export class ReduxWiring {
+export class Reduxology {
 
   private [reducers]: Record<string, Reducer> = {};
   private [store]: Store;
@@ -83,9 +83,9 @@ export class ReduxWiring {
   }
 }
 
-const defaultWiring = new ReduxWiring();
+const defaultReduxology = new Reduxology();
 
-export const createContainer = defaultWiring.createContainer;
-export const createReducer = defaultWiring.createReducer;
-export const createRoot = defaultWiring.createRoot;
-export const dispatch = defaultWiring.dispatch;
+export const createContainer = defaultReduxology.createContainer;
+export const createReducer = defaultReduxology.createReducer;
+export const createRoot = defaultReduxology.createRoot;
+export const dispatch = defaultReduxology.dispatch;

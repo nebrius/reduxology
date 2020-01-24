@@ -1,5 +1,5 @@
 {
-  "name": "redux-wiring",
+  "name": "reduxology",
   "version": "1.0.0-alpha",
   "description": "A library that makes it easier to manage boilerplate and connecting things in Redux ",
   "main": "dist/index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nebrius/redux-wiring.git"
+    "url": "git+https://github.com/nebrius/reduxology.git"
   },
   "keywords": [
     "react",
@@ -21,9 +21,9 @@
   "author": "Bryan Hughes <bryan@nebri.us>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nebrius/redux-wiring/issues"
+    "url": "https://github.com/nebrius/reduxology/issues"
   },
-  "homepage": "https://github.com/nebrius/redux-wiring#readme",
+  "homepage": "https://github.com/nebrius/reduxology#readme",
   "devDependencies": {
     "@types/react": "^16.9.17",
     "@types/react-redux": "^7.1.6",

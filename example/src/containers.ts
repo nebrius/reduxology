@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import { createContainer } from 'redux-wiring';
+import { createContainer } from 'reduxology';
 import { AppComponent, AppComponentProps, AppComponentDispatch } from './components';
 import { STATE_PATHS, ACTION_TYPES, AppointmentState } from './types';
 

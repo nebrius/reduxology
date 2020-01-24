@@ -1,4 +1,4 @@
-# Redux Wiring <!-- omit in toc -->
+# Reduxology <!-- omit in toc -->
 
 **Note: this library is still in preview and there may be bugs or design decisions that need to be fleshed out. I'm grateful for any and all issues filed with bugs, feedback, and other thoughts you may have!**
 
@@ -18,10 +18,10 @@
       3. [Reducer#isHandlerRegistered(actionType) => boolean](#reducerishandlerregisteredactiontype--boolean)
    3. [createRoot(container) => React Component](#createrootcontainer--react-component)
    4. [dispatch(actionType, ...data)](#dispatchactiontype-data)
-   5. [new ReduxWiring()](#new-reduxwiring)
+   5. [new Reduxology()](#new-reduxology)
 5. [License](#license)
 
-Redux Wiring is a library that makes creating Redux-based React applications easier to create by automating a lot of the "wiring" required. In other words, this library automates and hides much of the boilerplate necessary in typical Redux apps. It also introduces a slightly tweaked model for actions and state, making them more evenly-abstracted.
+Reduxology is a library that makes creating Redux-based React applications easier to create. This library automates and hides much of the boilerplate necessary in typical Redux apps. It also introduces a slightly tweaked model for actions and state, making them more evenly-abstracted.
 
 In practice, this library is a wrapper for `redux` and `react-redux` in your application, replacing the need to use them directly. It is similar to [Redux Toolkit](https://redux-toolkit.js.org/), except that it also abstracts [React Redux](https://react-redux.js.org/) and is a replacement for both libraries.
 
@@ -32,7 +32,7 @@ Since this module is still new, this README is written with the assumption that 
 Install with npm:
 
 ```
-npm install redux-wiring
+npm install reduxology
 ```
 
 If you're a TypeScript user, you don't need to do anything else. This module is written in TypeScript, and includes type definitions in the module itself.
@@ -47,13 +47,13 @@ For a complete example, check out the [example in this repo](example/). For a re
 
 There aren't any actual APIs for working with actions in React+Redux, but they're an important concept. In traditional React, an action is an object with a `type` property that reducers use to determine how to react to them. In many ways, actions are a lot like standard events in JavaScript with only minor differences in shape.
 
-In Redux Wiring, actions are modified to look more like events in vanilla JavaScript. In Redux Wiring, actions are not an object with a `type` property, but rather a relationship between a string identifying the type of event, and arbitrary piece(s) of data representing the rest of the action. Containers and reducers both interact with actions with this same abstraction, as we'll see in the sections on reducers and containers below.
+In Reduxology, actions are modified to look more like events in vanilla JavaScript. In Reduxology, actions are not an object with a `type` property, but rather a relationship between a string identifying the type of event, and arbitrary piece(s) of data representing the rest of the action. Containers and reducers both interact with actions with this same abstraction, as we'll see in the sections on reducers and containers below.
 
 ### State
 
-State has been remixed in Redux Wiring so that it looks a lot like actions, for similar reasons. A _slice_ of state, i.e. the part of state created by a single reducer, now has an accompanying _slice type_. This slice type is directly analogous to an action type, and is used to differentiate one slice of data from another. This is the largest change from typical Redux.
+State has been remixed in Reduxology so that it looks a lot like actions, for similar reasons. A _slice_ of state, i.e. the part of state created by a single reducer, now has an accompanying _slice type_. This slice type is directly analogous to an action type, and is used to differentiate one slice of data from another. This is the largest change from typical Redux.
 
-In Redux, the location of this slice in the store is implicit in the structure of the store for data consumers, and implicit in the `combineReducers` calls for reducers. In Redux Wiring, the slice type is used to explicitly define the slice location. As we'll see below, consuming state in a container now looks a lot like using a `Map` object, except that there is no setter.
+In Redux, the location of this slice in the store is implicit in the structure of the store for data consumers, and implicit in the `combineReducers` calls for reducers. In Reduxology, the slice type is used to explicitly define the slice location. As we'll see below, consuming state in a container now looks a lot like using a `Map` object, except that there is no setter.
 
 ### Reducers
 
@@ -66,7 +66,7 @@ This happens because of the second core difference between an action handler and
 Each action handler uses [Immer](https://immerjs.github.io/immer/docs/introduction) under the hood, which means you don't have to create a complete copy of the state as in vanilla Redux, or use a library like Immutable.js. You can modify properties as you see fit and the rest is taken care of.
 
 ```JavaScript
-import { createReducer } from 'redux-wiring';
+import { createReducer } from 'reduxology';
 
 const init = {
   appointments: []
@@ -93,10 +93,10 @@ Note: you do not need to register any handlers to create the reducer. The reduce
 
 Containers look quite similar to vanilla React Redux containers, except that there is a single function call to `createContainer()` instead of a double call to `connect()` and the function it returns. The first argument is mapStateToProps, and the second is mapDispatchToProps, same as in React Redux.
 
-A key difference between React Redux and Redux Wiring is the `state` object passed to the mapDispatchToProps function. In traditional React Redux the state parameter passed in is a plain ole JavaScript object, but the state object in Redux Wiring is a little different. It's an object with a getter. You call `state.getSlice()` with a slice type, and it returns that piece of state. On first run, this value will be the same as the initialization value passed to `createContainer`.
+A key difference between React Redux and Reduxology is the `state` object passed to the mapDispatchToProps function. In traditional React Redux the state parameter passed in is a plain ole JavaScript object, but the state object in Reduxology is a little different. It's an object with a getter. You call `state.getSlice()` with a slice type, and it returns that piece of state. On first run, this value will be the same as the initialization value passed to `createContainer`.
 
 ```JavaScript
-import { createContainer } from 'redux-wiring';
+import { createContainer } from 'reduxology';
 import { AppComponent } from './components';
 
 export const AppContainer = createContainer(
@@ -121,11 +121,11 @@ export const AppContainer = createContainer(
 
 ### App Initialization
 
-Redux Wiring provides a helper function called `createRoot` that creates a `<Provider store={store}></Provider` React element for you, and automatically wires the store into it.
+Reduxology provides a helper function called `createRoot` that creates a `<Provider store={store}></Provider` React element for you, and automatically wires the store into it.
 
 ```JavaScript
 import { render } from 'react-dom';
-import { createRoot } from 'redux-wiring';
+import { createRoot } from 'reduxology';
 import { AppContainer } from './containers';
 
 import './reducers';
@@ -231,11 +231,11 @@ Worse, the way this location is defined cannot be reused between reducers and co
 
 After reflecting on these issues, I realized that we have an issue with the _evenness_ of our abstractions. The way that actions are created vs consumed is different, with one side being well abstracted and the other not. The way that data is created vs consumed is the same, with one side being well abstracted and the other not. This imbalance diminishes the usefulness of these abstractions, and in my experience has led to confusion among more junior developers. This partial abstraction makes a lot of the code look like magic, and can lead to not understanding why some things require manual coding and others don't.
 
-Thinking through this more, there is another bit of implicit symmetry here: state and actions are both data that flows through the system. They do represent very different types of data, so these are not things that should be merged. But it is an observation that has influenced the API design of Redux Wiring
+Thinking through this more, there is another bit of implicit symmetry here: state and actions are both data that flows through the system. They do represent very different types of data, so these are not things that should be merged. But it is an observation that has influenced the API design of Reduxology.
 
 In addition to this somewhat muddy view of data dependencies vs data flow, there's also just a lot of _stuff_ you have to doto connect all the pieces together. When we look at a dependency graph of a codebase based on `import` statements, the unidirectional flow of data tends to be obscured by all the scaffolding.
 
-Redux Wiring aims to address all of these issues to varying degrees, while keeping the things about React+Redux that makes them such an amazing way to create UIs.
+Reduxology aims to address all of these issues to varying degrees, while keeping the things about React+Redux that makes them such an amazing way to create UIs.
 
 ## API
 
@@ -481,9 +481,11 @@ _Return value:_
 
 None.
 
-### new ReduxWiring()
+### new Reduxology()
 
-Creates a new Redux Wiring instance which will have its own store associated with it. Each of the previous methods described in this README are present on the ReduxWiring instance. All of the previous methods are, in fact, part of a ReduxWiring object that is created for you automatically behind the scenes.
+Creates a new Reduxology instance which will have its own store associated with it. Each of the previous methods described in this README are present on the Reduxology instance. All of the previous methods are, in fact, part of a Reduxology object that is created for you automatically behind the scenes.
+
+Someday I hope to use this class in TypeScript land to add strongly-type actions and state via the same mechanism used for the [Strict Event Emitters Types](https://github.com/bterlson/strict-event-emitter-types).
 
 ## License
 

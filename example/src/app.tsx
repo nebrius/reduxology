@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 import { render } from 'react-dom';
-import { createRoot } from 'redux-wiring';
+import { createRoot } from 'reduxology';
 
 import './reducers';
 

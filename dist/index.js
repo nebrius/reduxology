@@ -31,7 +31,7 @@ const state_1 = require("./state");
 const reducer_1 = require("./reducer");
 const reducers = Symbol('reducers');
 const store = Symbol('store');
-class ReduxWiring {
+class Reduxology {
     constructor() {
         this[_a] = {};
         this.createContainer = (mapStateToProps, mapDispatchToProps, component) => {
@@ -64,11 +64,11 @@ class ReduxWiring {
         };
     }
 }
-exports.ReduxWiring = ReduxWiring;
+exports.Reduxology = Reduxology;
 _a = reducers;
-const defaultWiring = new ReduxWiring();
-exports.createContainer = defaultWiring.createContainer;
-exports.createReducer = defaultWiring.createReducer;
-exports.createRoot = defaultWiring.createRoot;
-exports.dispatch = defaultWiring.dispatch;
+const defaultReduxology = new Reduxology();
+exports.createContainer = defaultReduxology.createContainer;
+exports.createReducer = defaultReduxology.createReducer;
+exports.createRoot = defaultReduxology.createRoot;
+exports.dispatch = defaultReduxology.dispatch;
 //# sourceMappingURL=index.js.map
