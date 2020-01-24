@@ -1,6 +1,6 @@
 {
   "name": "reduxology",
-  "version": "1.0.0-alpha",
+  "version": "1.0.0-beta1",
   "description": "A library that makes it easier to manage boilerplate and connecting things in Redux ",
   "main": "dist/index.js",
   "types": "./declarations/index.d.ts",
