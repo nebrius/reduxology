@@ -483,7 +483,7 @@ None.
 
 ### new Reduxology()
 
-Creates a new Reduxology instance which will have its own store associated with it. Each of the previous methods described in this README are present on the Reduxology instance. All of the previous methods are, in fact, part of a Reduxology object that is created for you automatically behind the scenes.
+Creates a new Reduxology instance which will have its own store associated with it. Each of the previous methods described in the API section are present on the Reduxology instance. All of the previous methods are, in fact, part of a Reduxology instance that is created for you automatically behind the scenes.
 
 Someday I hope to use this class in TypeScript land to add strongly-type actions and state via the same mechanism used for the [Strict Event Emitters Types](https://github.com/bterlson/strict-event-emitter-types).
 
