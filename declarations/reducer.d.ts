@@ -6,7 +6,7 @@ export declare class Reducer {
     [reduxReducer]: ReduxReducer;
     private [actionHandlers];
     constructor(init: any);
-    handle: (actionType: string, listener: ReducerActionListener) => Reducer;
+    handle: (actionType: string, handler: ReducerActionListener) => Reducer;
     removeHandler: (actionType: string) => void;
     isHandlerRegistered: (actionType: string) => boolean;
 }

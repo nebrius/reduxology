@@ -30,11 +30,11 @@ const actionHandlers = Symbol('actionHandlers');
 class Reducer {
     constructor(init) {
         this[_a] = {};
-        this.handle = (actionType, listener) => {
+        this.handle = (actionType, handler) => {
             if (this[actionHandlers].hasOwnProperty(actionType)) {
                 throw new Error(`An action handler for ${actionType} has already been registered`);
             }
-            this[actionHandlers][actionType] = listener;
+            this[actionHandlers][actionType] = handler;
             return this;
         };
         this.removeHandler = (actionType) => {

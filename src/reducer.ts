@@ -49,11 +49,11 @@ export class Reducer {
     };
   }
 
-  public handle = (actionType: string, listener: ReducerActionListener): Reducer => {
+  public handle = (actionType: string, handler: ReducerActionListener): Reducer => {
     if (this[actionHandlers].hasOwnProperty(actionType)) {
       throw new Error(`An action handler for ${actionType} has already been registered`);
     }
-    this[actionHandlers][actionType] = listener;
+    this[actionHandlers][actionType] = handler;
     return this;
   }
 
