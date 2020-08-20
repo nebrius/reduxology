@@ -30,12 +30,14 @@ import {
   Store,
   Reducer as ReduxReducer,
   combineReducers,
-  Middleware
+  Middleware,
+  applyMiddleware
 } from 'redux';
 import { State } from './state';
 import { Reducer, reduxReducer } from './reducer';
 
-export { ActionListener } from './reducer';
+export { ReducerActionListener } from './reducer';
+export type ActionListener = (...actionData: any[]) => void;
 export type MapStateToProps = (getSlice: (slice: string) => any) => any;
 export type MapDispatchToProps = (
   dispatch: (action: string, ...data: any[]) => void
@@ -43,10 +45,12 @@ export type MapDispatchToProps = (
 
 const reducers = Symbol('reducers');
 const store = Symbol('store');
+const actionListeners = Symbol('actionListeners');
 
 export class Reduxology {
   private [reducers]: Record<string, Reducer> = {};
   private [store]: Store;
+  private [actionListeners]: Record<string, ActionListener[]> = {};
 
   public createContainer = (
     mapStateToProps: MapStateToProps,
@@ -87,12 +91,30 @@ export class Reduxology {
       const reducer = this[reducers][dataType];
       reducerSet[dataType] = reducer[reduxReducer];
     }
-    this[store] = createStore(combineReducers(reducerSet), ...middleware);
+    middleware.unshift(() => (next) => (action) => {
+      if (this[actionListeners][action.type]) {
+        for (const listener of this[actionListeners][action.type]) {
+          listener(...action.data);
+        }
+      }
+      return next(action);
+    });
+    this[store] = createStore(
+      combineReducers(reducerSet),
+      applyMiddleware(...middleware)
+    );
     return (
       <Provider store={this[store]}>
         <Container />
       </Provider>
     );
+  };
+
+  public listen = (actionType: string, listener: ActionListener): void => {
+    if (!this[actionListeners].hasOwnProperty(actionType)) {
+      this[actionListeners][actionType] = [];
+    }
+    this[actionListeners][actionType].push(listener);
   };
 }
 
@@ -102,3 +124,4 @@ export const createContainer = defaultReduxology.createContainer;
 export const createReducer = defaultReduxology.createReducer;
 export const createRoot = defaultReduxology.createRoot;
 export const dispatch = defaultReduxology.dispatch;
+export const listen = defaultReduxology.listen;

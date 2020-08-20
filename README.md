@@ -1,23 +1,23 @@
 # Reduxology <!-- omit in toc -->
 
-1. [Installation](#installation)
-2. [Usage](#usage)
-   1. [Actions](#actions)
-   2. [State](#state)
-   3. [Reducers](#reducers)
-   4. [Containers](#containers)
-   5. [App Initialization](#app-initialization)
-3. [Motivation](#motivation)
-4. [API](#api)
-   1. [createContainer(mapStateToProps, mapDispatchToProps, component) => React Redux Container](#createcontainermapstatetoprops-mapdispatchtoprops-component--react-redux-container)
-   2. [createReducer(slice, initialData) => Reducer](#createreducerslice-initialdata--reducer)
-      1. [Reducer#handle(actionType, handler) => Reducer](#reducerhandleactiontype-handler--reducer)
-      2. [Reducer#removeHandler(actionType)](#reducerremovehandleractiontype)
-      3. [Reducer#isHandlerRegistered(actionType) => boolean](#reducerishandlerregisteredactiontype--boolean)
-   3. [createRoot(container) => React Component](#createrootcontainer--react-component)
-   4. [dispatch(actionType, ...data)](#dispatchactiontype-data)
-   5. [new Reduxology()](#new-reduxology)
-5. [License](#license)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Actions](#actions)
+  - [State](#state)
+  - [Reducers](#reducers)
+  - [Containers](#containers)
+  - [App Initialization](#app-initialization)
+- [Motivation](#motivation)
+- [API](#api)
+  - [createContainer(mapStateToProps, mapDispatchToProps, component) => React Redux Container](#createcontainermapstatetoprops-mapdispatchtoprops-component--react-redux-container)
+  - [createReducer(slice, initialData) => Reducer](#createreducerslice-initialdata--reducer)
+    - [Reducer#handle(actionType, handler) => Reducer](#reducerhandleactiontype-handler--reducer)
+    - [Reducer#removeHandler(actionType)](#reducerremovehandleractiontype)
+    - [Reducer#isHandlerRegistered(actionType) => boolean](#reducerishandlerregisteredactiontype--boolean)
+  - [createRoot(container, ...middleware) => React Component](#createrootcontainer-middleware--react-component)
+  - [dispatch(actionType, ...data)](#dispatchactiontype-data)
+  - [new Reduxology()](#new-reduxology)
+- [License](#license)
 
 Reduxology is a library that makes creating Redux-based React applications easier to create. This library automates and hides much of the boilerplate necessary in typical Redux apps. It also introduces a slightly tweaked model for actions and state, making them more evenly-abstracted.
 
@@ -501,7 +501,7 @@ Checks if there is a handler registered for a given action type.
 
 A boolean value indicating whether or not a handler has been registered for the given action type.
 
-### createRoot(container) => React Component
+### createRoot(container, ...middleware) => React Component
 
 Creates a root-level React component to be passed to React's `render()` method. This function creates the store for you and attaches it to a React Redux `<Provider>` component, and attaches the supplied container as the one and only child to it.
 

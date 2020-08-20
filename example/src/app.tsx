@@ -26,11 +26,8 @@ import { render } from 'react-dom';
 import { createRoot } from 'reduxology';
 
 import './reducers';
+import './listeners';
 
 import { AppContainer } from './containers';
-import { loggerMiddleware } from './logger-middleware';
 
-render(
-  createRoot(AppContainer, loggerMiddleware),
-  document.getElementById('root')
-);
+render(createRoot(AppContainer), document.getElementById('root'));

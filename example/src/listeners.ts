@@ -22,9 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-export const loggerMiddleware = (store) => (next) => (action) => {
-  console.log('dispatching', action);
-  const result = next(action);
-  console.log('next state', store.getState());
-  return result;
-};
+import { listen } from 'reduxology';
+import { ACTION_TYPES, Appointment } from './types';
+
+listen(ACTION_TYPES.ADD_APPOINTMENT, (time: number, duration: number) => {
+  console.log(
+    `Add appointment action dispatched with time ${time} and duration ${duration}`
+  );
+});
+
+listen(ACTION_TYPES.CANCEL_APPOINTMENT, (appointmentToCancel: Appointment) => {
+  console.log(
+    `Cancel appointment action dispatched with appointment ${appointmentToCancel}`
+  );
+});

@@ -25,14 +25,14 @@ SOFTWARE.
 import { Reducer as ReduxReducer } from 'redux';
 import produce from 'immer';
 
-export type ActionListener = (state: any, ...actionData: any[]) => void;
+export type ReducerActionListener = (state: any, ...actionData: any[]) => void;
 
 export const reduxReducer = Symbol('reduxReducer');
 const actionHandlers = Symbol('actionHandlers');
 
 export class Reducer {
   public [reduxReducer]: ReduxReducer;
-  private [actionHandlers]: Record<string, ActionListener> = {};
+  private [actionHandlers]: Record<string, ReducerActionListener> = {};
 
   constructor(init: any) {
     this[reduxReducer] = (state: any, action: any) => {
@@ -48,7 +48,10 @@ export class Reducer {
     };
   }
 
-  public handle = (actionType: string, handler: ActionListener): Reducer => {
+  public handle = (
+    actionType: string,
+    handler: ReducerActionListener
+  ): Reducer => {
     if (this[actionHandlers].hasOwnProperty(actionType)) {
       throw new Error(
         `An action handler for ${actionType} has already been registered`
