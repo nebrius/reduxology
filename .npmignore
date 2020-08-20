@@ -106,5 +106,6 @@ typings/
 src
 example
 tsconfig.json
-tslint.json
+.prettierrc.json
+.eslintrc.js
 .vscode

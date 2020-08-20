@@ -1,7 +1,5 @@
 # Reduxology <!-- omit in toc -->
 
-**Note: this library is still in preview and there may be bugs or design decisions that need to be fleshed out. I'm grateful for any and all issues filed with bugs, feedback, and other thoughts you may have!**
-
 1. [Installation](#installation)
 2. [Usage](#usage)
    1. [Actions](#actions)

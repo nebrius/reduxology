@@ -34,7 +34,9 @@ export interface AppComponentDispatch {
   cancelAppointment: (appointment: Appointment) => void;
 }
 
-export class AppComponent extends React.Component<AppComponentProps & AppComponentDispatch, {}> {
+export class AppComponent extends React.Component<
+  AppComponentProps & AppComponentDispatch
+> {
   public render() {
     return (
       <div>
@@ -42,7 +44,8 @@ export class AppComponent extends React.Component<AppComponentProps & AppCompone
           <AppointmentComponent
             key={appointment.time}
             appointment={appointment}
-            cancelAppointment={this.props.cancelAppointment} />
+            cancelAppointment={this.props.cancelAppointment}
+          />
         ))}
         <button onClick={this.onClick}>Add Appointment</button>
       </div>
@@ -51,7 +54,7 @@ export class AppComponent extends React.Component<AppComponentProps & AppCompone
 
   private onClick = () => {
     this.props.addAppointment(Date.now(), 30);
-  }
+  };
 }
 
 interface AppointmentComponentProps {
@@ -59,12 +62,14 @@ interface AppointmentComponentProps {
   cancelAppointment: (appointment: Appointment) => void;
 }
 
-class AppointmentComponent extends React.Component<AppointmentComponentProps, {}> {
+class AppointmentComponent extends React.Component<AppointmentComponentProps> {
   public render() {
     const { time, duration } = this.props.appointment;
     return (
       <div>
-        <span>{new Date(time).toString()} ({duration} minutes)</span>
+        <span>
+          {new Date(time).toString()} ({duration} minutes)
+        </span>
         <button onClick={this.onClick}>X</button>
       </div>
     );
@@ -72,6 +77,5 @@ class AppointmentComponent extends React.Component<AppointmentComponentProps, {}
 
   private onClick = () => {
     this.props.cancelAppointment(this.props.appointment);
-  }
-
+  };
 }

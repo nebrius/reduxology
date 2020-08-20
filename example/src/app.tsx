@@ -28,8 +28,9 @@ import { createRoot } from 'reduxology';
 import './reducers';
 
 import { AppContainer } from './containers';
+import { loggerMiddleware } from './logger-middleware';
 
 render(
-  createRoot(AppContainer),
+  createRoot(AppContainer, loggerMiddleware),
   document.getElementById('root')
 );

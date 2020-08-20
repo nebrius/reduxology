@@ -23,20 +23,28 @@ SOFTWARE.
 */
 
 import * as React from 'react';
-import { Provider, connect } from 'react-redux';
+import { Provider, ConnectedComponent, connect } from 'react-redux';
 import { Dispatch } from 'react';
-import { createStore, Store, Reducer as ReduxReducer, combineReducers } from 'redux';
+import {
+  createStore,
+  Store,
+  Reducer as ReduxReducer,
+  combineReducers,
+  Middleware
+} from 'redux';
 import { State } from './state';
 import { Reducer, reduxReducer } from './reducer';
 
-type MapStateToProps = (getSlice: (slice: string) => any) => any;
-type MapDispatchToProps = (dispatch: (action: string, ...data: any[]) => void) => any;
+export { ActionListener } from './reducer';
+export type MapStateToProps = (getSlice: (slice: string) => any) => any;
+export type MapDispatchToProps = (
+  dispatch: (action: string, ...data: any[]) => void
+) => any;
 
 const reducers = Symbol('reducers');
 const store = Symbol('store');
 
 export class Reduxology {
-
   private [reducers]: Record<string, Reducer> = {};
   private [store]: Store;
 
@@ -44,43 +52,48 @@ export class Reduxology {
     mapStateToProps: MapStateToProps,
     mapDispatchToProps: MapDispatchToProps,
     component: any
-  ) => {
+  ): ConnectedComponent<any, Pick<unknown, never>> => {
     return connect(
-      (rawState: any) => mapStateToProps((new State(rawState)).getSlice),
-      (rawDispatch: Dispatch<any>) => mapDispatchToProps((type, ...data) => rawDispatch({ type, data }))
+      (rawState: any) => mapStateToProps(new State(rawState).getSlice),
+      (rawDispatch: Dispatch<any>) =>
+        mapDispatchToProps((type, ...data) => rawDispatch({ type, data }))
     )(component);
-  }
+  };
 
   public createReducer = (slice: string, initialData: any): Reducer => {
     if (typeof slice !== 'string') {
       throw new Error('"slice" argument must be a string');
     }
     if (this[reducers].hasOwnProperty(slice)) {
-      throw new Error(`Cannot create reducer at ${slice} because that slice is already taken`);
+      throw new Error(
+        `Cannot create reducer at ${slice} because that slice is already taken`
+      );
     }
     const reducer = new Reducer(initialData);
     this[reducers][slice] = reducer;
     return reducer;
-  }
+  };
 
-  public dispatch = (type: string, ...data: any[]) => {
+  public dispatch = (type: string, ...data: any[]): void => {
     this[store].dispatch({ type, data });
-  }
+  };
 
-  public createRoot = (Container: any) => {
+  public createRoot = (
+    Container: any,
+    ...middleware: Middleware[]
+  ): JSX.Element => {
     const reducerSet: Record<string, ReduxReducer> = {};
-    // tslint:disable forin
     for (const dataType in this[reducers]) {
       const reducer = this[reducers][dataType];
       reducerSet[dataType] = reducer[reduxReducer];
     }
-    this[store] = createStore(combineReducers(reducerSet));
+    this[store] = createStore(combineReducers(reducerSet), ...middleware);
     return (
       <Provider store={this[store]}>
         <Container />
       </Provider>
     );
-  }
+  };
 }
 
 const defaultReduxology = new Reduxology();

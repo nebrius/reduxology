@@ -36,5 +36,5 @@ export class State {
       throw new Error(`Slice "${slice}" does not exist`);
     }
     return this[state][slice];
-  }
+  };
 }

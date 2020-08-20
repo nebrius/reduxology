@@ -22,32 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import { createContainer } from 'reduxology';
-import {
-  AppComponent,
-  AppComponentProps,
-  AppComponentDispatch
-} from './components';
-import { STATE_PATHS, ACTION_TYPES, AppointmentState } from './types';
-
-export const AppContainer = createContainer(
-  (getSlice): AppComponentProps => {
-    const appointmentState: AppointmentState = getSlice(
-      STATE_PATHS.APPOINTMENTS
-    );
-    return {
-      appointments: appointmentState.appointments
-    };
-  },
-  (dispatch): AppComponentDispatch => {
-    return {
-      addAppointment(time, duration) {
-        dispatch(ACTION_TYPES.ADD_APPOINTMENT, time, duration);
-      },
-      cancelAppointment(appointment) {
-        dispatch(ACTION_TYPES.CANCEL_APPOINTMENT, appointment);
-      }
-    };
-  },
-  AppComponent
-);
+export const loggerMiddleware = (store) => (next) => (action) => {
+  console.log('dispatching', action);
+  const result = next(action);
+  console.log('next state', store.getState());
+  return result;
+};

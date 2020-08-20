@@ -24,6 +24,7 @@ SOFTWARE.
 */
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Reducer = exports.reduxReducer = void 0;
 const immer_1 = require("immer");
 exports.reduxReducer = Symbol('reduxReducer');
 const actionHandlers = Symbol('actionHandlers');

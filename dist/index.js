@@ -24,6 +24,7 @@ SOFTWARE.
 */
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.dispatch = exports.createRoot = exports.createReducer = exports.createContainer = exports.Reduxology = void 0;
 const React = require("react");
 const react_redux_1 = require("react-redux");
 const redux_1 = require("redux");
@@ -35,7 +36,7 @@ class Reduxology {
     constructor() {
         this[_a] = {};
         this.createContainer = (mapStateToProps, mapDispatchToProps, component) => {
-            return react_redux_1.connect((rawState) => mapStateToProps((new state_1.State(rawState)).getSlice), (rawDispatch) => mapDispatchToProps((type, ...data) => rawDispatch({ type, data })))(component);
+            return react_redux_1.connect((rawState) => mapStateToProps(new state_1.State(rawState).getSlice), (rawDispatch) => mapDispatchToProps((type, ...data) => rawDispatch({ type, data })))(component);
         };
         this.createReducer = (slice, initialData) => {
             if (typeof slice !== 'string') {
@@ -51,14 +52,13 @@ class Reduxology {
         this.dispatch = (type, ...data) => {
             this[store].dispatch({ type, data });
         };
-        this.createRoot = (Container) => {
+        this.createRoot = (Container, ...middleware) => {
             const reducerSet = {};
-            // tslint:disable forin
             for (const dataType in this[reducers]) {
                 const reducer = this[reducers][dataType];
                 reducerSet[dataType] = reducer[reducer_1.reduxReducer];
             }
-            this[store] = redux_1.createStore(redux_1.combineReducers(reducerSet));
+            this[store] = redux_1.createStore(redux_1.combineReducers(reducerSet), ...middleware);
             return (React.createElement(react_redux_1.Provider, { store: this[store] },
                 React.createElement(Container, null)));
         };
