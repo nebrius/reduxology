@@ -16,6 +16,7 @@
     - [Reducer#isHandlerRegistered(actionType) => boolean](#reducerishandlerregisteredactiontype--boolean)
   - [createRoot(container, ...middleware) => React Component](#createrootcontainer-middleware--react-component)
   - [dispatch(actionType, ...data)](#dispatchactiontype-data)
+  - [listen(actionType, listener)](#listenactiontype-listener)
   - [new Reduxology()](#new-reduxology)
 - [License](#license)
 
@@ -229,13 +230,13 @@ Worse, the way this location is defined cannot be reused between reducers and co
 
 ### Conclusion <!-- omit in toc -->
 
-After reflecting on these issues, I realized that we have an issue with the _evenness_ of our abstractions. The way that actions are created vs consumed is different, with the container side being well abstracted and the reducer side not. The way that state is created vs consumed is the same but flipped, with the reducer side being well abstracted and the container side not. This imbalance diminishes the usefulness of these abstractions, and in my experience has led to confusion among developers, especially junior developers. This partial abstraction makes a lot of the code look like magic, and can lead to not understanding why some things require manual coding and others don't.
+After reflecting on these issues, I realized that we have an issue with the _consistency_ of our abstractions. The way that actions are created vs consumed is different, with the container side being well abstracted and the reducer side not. The way that state is created vs consumed is the same but flipped, with the reducer side being well abstracted and the container side not. This imbalance diminishes the usefulness of these abstractions, and in my experience has led to confusion among developers, especially junior developers. This partial abstraction makes a lot of the code look like magic, and can lead to not understanding why some things require manual coding and others don't.
 
-Thinking through this more, there is another bit of implicit symmetry here: state and actions are both data that flows through the system. They do represent very different types of data, so these are not things that should be combined. But, it is an observation that has influenced the API design of Reduxology.
+Thinking through the architecture of Redux more, there is another bit of implicit symmetry: state and actions are both data that flows through the system. They do represent very different types of data, so these are not things that should be combined. But, it is an observation that has influenced the API design of Reduxology.
 
-In addition to this somewhat muddy view of data dependencies vs data flow, there's also just a lot of _stuff_ you have to do to connect all the pieces together. When we look at a dependency graph of a codebase based on `import` statements, the unidirectional flow of data tends to be obscured by all the scaffolding around it.
+In addition to Redux' somewhat muddy view of data dependencies vs data flow, there's also just a lot of _stuff_ you have to do to connect all the pieces together. When we look at a dependency graph of a codebase based on `import` statements, the unidirectional flow of data tends to be obscured by all the scaffolding around it.
 
-Reduxology aims to address all of these issues to varying degrees, while keeping the things about React+Redux that makes them such an amazing way to create UIs.
+Reduxology aims to address all of these issues to varying degrees, while keeping the aspects of React+Redux that makes them such an amazing way to create UIs.
 
 ## API
 
@@ -521,6 +522,13 @@ Creates a root-level React component to be passed to React's `render()` method. 
       <td>React Redux Container</td>
       <td>The container to attach, as returned from <a href="#createcontainermapstatetoprops-mapdispatchtoprops-component--react-redux-container">createContainer()</a></td>
     </tr>
+    <tr>
+      <td>...middleware</td>
+      <td>Redux Middleware</td>
+      <td>Any additional Redux middleware you'd like to attach to the Redux instance, e.g. [redux-thunk](https://github.com/reduxjs/redux-thunk) or [redux-saga](https://github.com/redux-saga/redux-saga). These middleware can be passed in as-is without modification. They are passed to the Redux `applyMiddleware` method directly, so there's no need to call `applyMiddleware` yourself.
+
+      Note: the value for store, next, and action used by the middleware are the raw under-the-hood variants, not the Reduxology variants. I soon hope to implement some helper methods you can use to convert actions and the store to the Reduxology variants.</td>
+    </tr>
   </tbody>
 </table>
 
@@ -562,11 +570,67 @@ Note: this function should not be used in the place of the `dispath` parameter p
 
 None.
 
+### listen(actionType, listener)
+
+Listens for actions, without modifying them. This method is useful for connecting API calls to actions.
+
+**_Arguments:_**
+
+<table>
+  <thead>
+    <tr>
+      <th>Argument</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>actionType</td>
+      <td>String</td>
+      <td>The type of action to listen for</td>
+    </tr>
+    <tr>
+      <td>listener</td>
+      <td>any</td>
+      <td>A listener that will receive the action data.</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="2">
+        <em>Arguments:</em>
+        <table>
+          <thead>
+            <tr>
+              <th>Argument</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>...data</td>
+              <td>any</td>
+              <td>Each action can dispatch zero to many arguments, and are passed to the listener in the order they were passed to the <a href="#dispatchactiontype-data">dispatch function</a>.</td>
+            </tr>
+          </tbody>
+        </table>
+        <br /><em>Return Value:</em>
+        <div>None.</div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**_Return value:_**
+
+None.
+
 ### new Reduxology()
 
 Creates a new Reduxology instance which will have its own store associated with it. Each of the previous methods described in the API section are present on the Reduxology instance. All of the previous methods are, in fact, part of a Reduxology instance that is created for you automatically behind the scenes.
 
-Someday I hope to use this class in TypeScript land to add strongly-type actions and state via the same mechanism used for the [Strict Event Emitters Types](https://github.com/bterlson/strict-event-emitter-types).
+Someday I hope to use this class in TypeScript land to add strongly-type actions and state via the same mechanism used for the [Strict Event Emitters Types](https://github.com/bterlson/strict-event-emitter-types) package.
 
 ## License
 
