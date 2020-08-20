@@ -7,6 +7,7 @@
   - [Reducers](#reducers)
   - [Containers](#containers)
   - [App Initialization](#app-initialization)
+  - [Action Listeners](#action-listeners)
 - [Motivation](#motivation)
 - [API](#api)
   - [createContainer(mapStateToProps, mapDispatchToProps, component) => React Redux Container](#createcontainermapstatetoprops-mapdispatchtoprops-component--react-redux-container)
@@ -20,7 +21,7 @@
   - [new Reduxology()](#new-reduxology)
 - [License](#license)
 
-Reduxology is a library that makes creating Redux-based React applications easier to create. This library automates and hides much of the boilerplate necessary in typical Redux apps. It also introduces a slightly tweaked model for actions and state, making them more evenly-abstracted.
+Reduxology is a library that makes creating Redux-based React applications easier. This library automates and hides much of the boilerplate necessary in typical Redux apps. It also introduces a slightly tweaked model for actions and state, making these abstractions more consistent and user friendly.
 
 In practice, this library is a wrapper for `redux` and `react-redux` in your application, replacing the need to use them directly. It is similar to [Redux Toolkit](https://redux-toolkit.js.org/), except that it also abstracts [React Redux](https://react-redux.js.org/) and is a replacement for both libraries.
 
@@ -44,13 +45,13 @@ For a complete example, check out the [example in this repo](example/). For a re
 
 ### Actions
 
-There aren't any actual APIs for working with actions in React+Redux, but they're an important concept. In traditional React, an action is an object with a `type` property that reducers use to determine how to react to them. In many ways, actions are a lot like standard events in JavaScript with only minor differences in shape.
+There aren't any actual APIs for working with actions in React+Redux, but they're an important concept. In traditional React, an action is an object with a `type` property that reducers use to determine how to react to an action. In many ways, actions are a lot like standard events in JavaScript with only minor differences in shape and usage.
 
 In Reduxology, actions are modified to look more like events in vanilla JavaScript. In Reduxology, actions are not an object with a `type` property, but rather a relationship between a string identifying the type of event, and arbitrary piece(s) of data representing the rest of the action. Containers and reducers both interact with actions with this same abstraction, as we'll see in the sections on reducers and containers below.
 
 ### State
 
-State has been remixed in Reduxology so that it looks a lot like actions, for similar reasons. A _slice_ of state, i.e. the part of state created by a single reducer, now has an accompanying _slice type_. This slice type is directly analogous to an action type, and is used to differentiate one slice of data from another. This is the largest change from typical Redux.
+State has been remixed in Reduxology so that it looks a lot like actions, for similar reasons. A _slice_ of state, i.e. the part of state created by a single reducer, now has an accompanying _slice type_. This slice type is directly analogous to an action type, and is used to differentiate one slice of data from another. This is the largest change from typical Redux. You can think of state in Reduxology as a key-value store.
 
 In vanilla Redux, the location of this slice in the store is implicit in the structure of the store for data consumers, and implicit in the `combineReducers` calls for reducers. In Reduxology, the slice type is used to explicitly define the slice location in both data consumers (containers) and data creators (reducers).
 
@@ -58,9 +59,9 @@ In vanilla Redux, the location of this slice in the store is implicit in the str
 
 To create a reducer, we use the [createReducer()](#createreducerslice-initialdata--reducer) function. We pass in two arguments: the slice type, and the data to initialize this reducer with. This function returns an object that we can register _action handlers_ with. An action handler is very similar to an event handler. An action handler listens for a specific action type, and calls the function when the action type is dispatched.
 
-There is are two core differences between an action handler and an event listener. Each action type can only have _one_ action handler associated with it per reducer, and [handle()](#reducerhandleactiontype-handler--reducer) will throw an exception if you try to register more than one handler.
+There is are two core differences between an action handler and an event listener. Each action type can only have _one_ action handler associated with it per reducer. [handle()](#reducerhandleactiontype-handler--reducer) will throw an exception if you try to register more than one handler.
 
-This happens because of the second core difference between an action handler and an event listener: action handlers produce new state that is passed back to the runtime, whereas event listeners don't return anything. This returned value is the new state created from the old state and the action. Allowing more than one action handler would make the multiple values produced by the multiple handlers ambiguous.
+This happens because of the second core difference between an action handler and an event listener: action handlers produce new state that is passed back to the runtime by returning the new state value, whereas event listeners don't produce anything. This returned value is the new state created from the old state and the action. Allowing more than one action handler would make the multiple values produced by the multiple handlers ambiguous.
 
 Each action handler uses [Immer](https://immerjs.github.io/immer/docs/introduction) under the hood, which means you don't have to create a complete copy of the state as in vanilla Redux, or use a library like Immutable.js. You can modify properties as you see fit and the rest is taken care of.
 
@@ -86,7 +87,7 @@ createReducer('APPOINTMENTS', init)
   });
 ```
 
-Note: you do not need to register any handlers to create the reducer. The reducer will exist and return slice data in the `init` value passed in. This is useful if you want to create a reducer to expose initialization data through Redux that will not change.
+Note: you do not need to register any handlers to create the reducer. The reducer will exist and return slice data in the `init` value passed in. This is useful if you want to create a reducer to expose initialization data through Redux that will not change throughout the lifetime of the application
 
 ### Containers
 
@@ -134,6 +135,30 @@ render(
   document.getElementById('root')
 );
 ```
+### Action Listeners
+
+Middleware is a large topic for Redux. Reduxology supports using existing Redux middleware via the [createRoot()](#createrootcontainer--react-component) function. This is useful if you want to pass in off-the-shelf Redux middleware, such as [redux-thunk](https://github.com/reduxjs/redux-thunk) or [redux-saga](https://github.com/redux-saga/redux-saga).
+
+If you want to write your own middleware, Reduxology offers a simplified interface for addressing some of the common use cases that middleware provides for. This interface is called an _action listener_. An action listener listens for, well, actions. An action listener is virtually indistinguishable from an event listener in practice.
+
+For example, if you wanted to make an API call that fetches an item after a user clicks a button that dispatches a `REQUEST_ITEM` action, you could write something like this:
+
+```JavaScript
+import { listen, dispatch } from 'reduxology';
+
+listen('REQUEST_ITEM', async (itemId) => {
+  let itemData;
+  try {
+    const response = await fetch(`/api/items/${itemId}/`);
+    itemData = await response.json();
+  } catch (e) {
+    dispatch('ITEM_FETCH_FAILED', itemId);
+  }
+  dispatch('ITEM_FETCHED', itemId, itemData);
+});
+```
+
+Unlike traditional middleware, this function does not provide for modifying state. This was done intentionally to keep the API simple, although I will continue to think on how to make this method more powerful.
 
 ## Motivation
 
