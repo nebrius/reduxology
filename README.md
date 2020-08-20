@@ -160,6 +160,8 @@ listen('REQUEST_ITEM', async (itemId) => {
 
 Unlike traditional middleware, this function does not provide for modifying state. This was done intentionally to keep the API simple, although I will continue to think on how to make this method more powerful.
 
+Technical note: Although this action listener is an `async` function, action listeners are _not_ `await`ed by Reduxology. This means that the action dispatch is not blocked by the listener, and will continue being dispatched at the first `await` in the function.
+
 ## Motivation
 
 I've written many React apps, most small, some large. I've also taught React to a number of folks. Many developers, especially junior developers, get tripped up on both understanding what all the pieces do, and how to connect them together. I've been thinking hard on this problem for a while, and I think I've figured out where the confusion comes from.
