@@ -552,7 +552,7 @@ Creates a root-level React component to be passed to React's `render()` method. 
     <tr>
       <td>...middleware</td>
       <td>Redux Middleware</td>
-      <td>Any additional Redux middleware you'd like to attach to the Redux instance, e.g. <a href="https://github.com/reduxjs/redux-thunk">redux-thunk</a> or <a href="https://github.com/redux-saga/redux-saga">redux-saga</a>. These middleware can be passed in as-is without modification. They are passed to the Redux `applyMiddleware` method directly, so there's no need to call `applyMiddleware` yourself. <br />Note: the value for store, next, and action used by the middleware are the raw under-the-hood variants, not the Reduxology variants. I soon hope to implement some helper methods you can use to convert actions and the store to the Reduxology variants.</td>
+      <td>Any additional Redux middleware you'd like to attach to the Redux instance, e.g. <a href="https://github.com/reduxjs/redux-thunk">redux-thunk</a> or <a href="https://github.com/redux-saga/redux-saga">redux-saga</a>. These middleware can be passed in as-is without modification. They are passed to the Redux `applyMiddleware` method directly, so there's no need to call `applyMiddleware` yourself.<br /><br />Note: the value for store, next, and action used by the middleware are the raw under-the-hood variants, not the Reduxology variants. I soon hope to implement some helper methods you can use to convert actions and the store to the Reduxology variants.</td>
     </tr>
   </tbody>
 </table>
