@@ -139,7 +139,7 @@ render(
 
 Middleware is a large topic for Redux. Reduxology supports using existing Redux middleware via the [createRoot()](#createrootcontainer--react-component) function. This is useful if you want to pass in off-the-shelf Redux middleware, such as [redux-thunk](https://github.com/reduxjs/redux-thunk) or [redux-saga](https://github.com/redux-saga/redux-saga).
 
-If you want to write your own middleware, Reduxology offers a simplified interface for addressing some of the common use cases that middleware provides for. This interface is called an _action listener_. An action listener listens for, well, actions. An action listener is virtually indistinguishable from an event listener in practice.
+If you want to write your own middleware, Reduxology offers a simplified interface for addressing some of the common use cases that middleware provides for. This interface is called an _action listener_. An action listener listens for, well, actions. An action listener is virtually indistinguishable from a general JavaScript event listener in practice.
 
 For example, if you wanted to make an API call that fetches an item after a user clicks a button that dispatches a `REQUEST_ITEM` action, you could write something like this:
 
@@ -151,10 +151,10 @@ listen('REQUEST_ITEM', async (itemId) => {
   try {
     const response = await fetch(`/api/items/${itemId}/`);
     itemData = await response.json();
+    dispatch('ITEM_FETCHED', itemId, itemData);
   } catch (e) {
     dispatch('ITEM_FETCH_FAILED', itemId);
   }
-  dispatch('ITEM_FETCHED', itemId, itemData);
 });
 ```
 
