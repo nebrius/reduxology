@@ -147,10 +147,9 @@ For example, if you wanted to make an API call that fetches an item after a user
 import { listen, dispatch } from 'reduxology';
 
 listen('REQUEST_ITEM', async (itemId) => {
-  let itemData;
   try {
     const response = await fetch(`/api/items/${itemId}/`);
-    itemData = await response.json();
+    const itemData = await response.json();
     dispatch('ITEM_FETCHED', itemId, itemData);
   } catch (e) {
     dispatch('ITEM_FETCH_FAILED', itemId);
