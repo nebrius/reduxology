@@ -139,7 +139,7 @@ render(
 
 Middleware is a large topic for Redux. Reduxology supports using existing Redux middleware via the [createRoot()](#createrootcontainer--react-component) function. This is useful if you want to pass in off-the-shelf Redux middleware, such as [redux-thunk](https://github.com/reduxjs/redux-thunk) or [redux-saga](https://github.com/redux-saga/redux-saga).
 
-If you want to write your own middleware, Reduxology offers a simplified interface for addressing some of the common use cases that middleware provides for. This interface is called an _action listener_. An action listener listens for, well, actions. An action listener is virtually indistinguishable from a general JavaScript event listener in practice.
+If you want to write your own middleware, Reduxology offers a simplified interface for addressing some of the most common use cases that middleware provides for. This interface is called an _action listener_. An action listener listens for, well, actions. An action listener is virtually indistinguishable from a general JavaScript event listener in practice.
 
 For example, if you wanted to make an API call that fetches an item after a user clicks a button that dispatches a `REQUEST_ITEM` action, you could write something like this:
 
@@ -158,7 +158,7 @@ listen('REQUEST_ITEM', async (itemId) => {
 });
 ```
 
-Unlike traditional middleware, this function does not provide for modifying state. This was done intentionally to keep the API simple, although I will continue to think on how to make this method more powerful.
+Unlike traditional middleware, this function does _not_ provide a mechanism for modifying state. This was done intentionally to keep the API simple and address the most common use case for middleware. I will continue to think on how to make this method more powerful in the future.
 
 Technical note: Although this action listener is an `async` function, action listeners are _not_ `await`ed by Reduxology. This means that the action dispatch is not blocked by the listener, and will continue being dispatched at the first `await` in the function.
 
