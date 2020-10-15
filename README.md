@@ -330,6 +330,11 @@ Creates a container, in the React Redux sense, for use as a React component.
                 <div>An exception is thrown if an invalid state slice type is passed in.</div>
               </td>
             </tr>
+            <tr>
+              <td>ownProps</td>
+              <td>Object</td>
+              <td>The properties passed to the container from its parent component</td>
+            </tr>
           </tbody>
         </table>
         <br /><em>Return Value:</em>
@@ -358,6 +363,11 @@ Creates a container, in the React Redux sense, for use as a React component.
               <td>dispatch</td>
               <td>Function</td>
               <td>See the global <a href="#dispatchactiontype-data">dispatch function</a> for a description of how this argument is used.</a></td>
+            </tr>
+            <tr>
+              <td>ownProps</td>
+              <td>Object</td>
+              <td>The properties passed to the container from its parent component</td>
             </tr>
           </tbody>
         </table>

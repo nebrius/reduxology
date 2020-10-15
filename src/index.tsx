@@ -38,9 +38,13 @@ import { Reducer, reduxReducer } from './reducer';
 
 export { ReducerActionListener } from './reducer';
 export type ActionListener = (...actionData: any[]) => void;
-export type MapStateToProps = (getSlice: (slice: string) => any) => any;
+export type MapStateToProps = (
+  getSlice: (slice: string) => any,
+  ownProps?: any
+) => any;
 export type MapDispatchToProps = (
-  dispatch: (action: string, ...data: any[]) => void
+  dispatch: (action: string, ...data: any[]) => void,
+  ownProps?: any
 ) => any;
 
 const reducers = Symbol('reducers');
@@ -58,9 +62,13 @@ export class Reduxology {
     component: any
   ): ConnectedComponent<any, Pick<unknown, never>> => {
     return connect(
-      (rawState: any) => mapStateToProps(new State(rawState).getSlice),
-      (rawDispatch: Dispatch<any>) =>
-        mapDispatchToProps((type, ...data) => rawDispatch({ type, data }))
+      (rawState: any, ownProps) =>
+        mapStateToProps(new State(rawState).getSlice, ownProps),
+      (rawDispatch: Dispatch<any>, ownProps) =>
+        mapDispatchToProps(
+          (type, ...data) => rawDispatch({ type, data }),
+          ownProps
+        )
     )(component);
   };
 
