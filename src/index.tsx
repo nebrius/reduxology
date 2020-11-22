@@ -73,9 +73,7 @@ export class Reduxology<
   public createContainer = (
     mapStateToProps: (getSlice: GetSlice<TStateRecord>, ownProps?: any) => any,
     mapDispatchToProps: (
-      dispatch:
-        | (<P extends DispatchNVK>(action: P, data: TActionsRecord[P]) => void)
-        | (<P extends DispatchVK>(action: P) => void),
+      dispatch: Reduxology<TStateRecord, TActionsRecord>['dispatch'],
       ownProps?: any
     ) => any,
     component: any
@@ -83,7 +81,7 @@ export class Reduxology<
     return connect(
       (rawState: any, ownProps) =>
         mapStateToProps(new State<TStateRecord>(rawState).getSlice, ownProps),
-      (rawDispatch, ownProps) => mapDispatchToProps(this.dispatch, ownProps)
+      (_, ownProps) => mapDispatchToProps(this.dispatch, ownProps)
     )(component);
   };
 

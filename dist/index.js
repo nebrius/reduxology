@@ -40,7 +40,7 @@ class Reduxology {
         this[_a] = {};
         this[_b] = {};
         this.createContainer = (mapStateToProps, mapDispatchToProps, component) => {
-            return react_redux_1.connect((rawState, ownProps) => mapStateToProps(new state_1.State(rawState).getSlice, ownProps), (rawDispatch, ownProps) => mapDispatchToProps(this.dispatch, ownProps))(component);
+            return react_redux_1.connect((rawState, ownProps) => mapStateToProps(new state_1.State(rawState).getSlice, ownProps), (_, ownProps) => mapDispatchToProps(this.dispatch, ownProps))(component);
         };
         this.createReducer = (slice, initialData) => {
             if (typeof slice !== 'string') {
