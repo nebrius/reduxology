@@ -28,12 +28,16 @@ const appointmentsReducer = createReducer('Appointments', {
   appointments: []
 });
 
-// TODO: fix handle type
 appointmentsReducer.handle('AddAppointment', (state, { time, duration }) => {
-  state.appointments.push({ time, duration });
+  let id = 0;
+  for (const appointment of state.appointments) {
+    if (id <= appointment.id) {
+      id = appointment.id + 1;
+    }
+  }
+  state.appointments.push({ id, time, duration });
 });
 
-// TODO: fix handle type
 appointmentsReducer.handle(
   'CancelAppointment',
   (state, appointmentToCancel) => {

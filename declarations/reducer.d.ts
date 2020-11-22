@@ -2,7 +2,7 @@ import { Reducer as ReduxReducer } from 'redux';
 import { VoidKeys } from './util';
 export declare const reduxReducer: unique symbol;
 declare const actionHandlers: unique symbol;
-declare type Handler<S, A> = (slice: S, action: A) => S;
+declare type Handler<S, A> = (slice: S, action: A) => void;
 export declare class Reducer<TSliceRecord, TActionsRecord, ActionVK extends VoidKeys<TActionsRecord> = VoidKeys<TActionsRecord>, ActionNVK extends Exclude<keyof TActionsRecord, ActionVK> = Exclude<keyof TActionsRecord, ActionVK>> {
     [reduxReducer]: ReduxReducer;
     private [actionHandlers];

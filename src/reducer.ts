@@ -29,7 +29,7 @@ import { VoidKeys } from './util';
 export const reduxReducer = Symbol('reduxReducer');
 const actionHandlers = Symbol('actionHandlers');
 
-type Handler<S, A> = (slice: S, action: A) => S;
+type Handler<S, A> = (slice: S, action: A) => void;
 
 export class Reducer<
   TSliceRecord,
