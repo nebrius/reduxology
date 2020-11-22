@@ -36,7 +36,6 @@ export const AppContainer = createContainer(
       appointments: appointmentState.appointments
     };
   },
-  // TODO: fix dispatch type
   (dispatch): AppComponentDispatch => {
     return {
       addAppointment(time, duration) {
