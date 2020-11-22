@@ -22,19 +22,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+export type GetSlice<T> = <K extends keyof T>(slice: K) => T[K];
+
 const state = Symbol('state');
 
-export class State {
+export class State<T> {
   private [state]: Record<string, any>;
 
   constructor(rawState: Record<string, any>) {
     this[state] = rawState;
   }
 
-  public getSlice = (slice: string): any => {
+  public getSlice: GetSlice<T> = (slice) => {
     if (!this[state].hasOwnProperty(slice)) {
       throw new Error(`Slice "${slice}" does not exist`);
     }
-    return this[state][slice];
+    return this[state][slice as string];
   };
 }

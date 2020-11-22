@@ -22,30 +22,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import { createContainer } from 'reduxology';
+import { createContainer } from './reduxology';
 import {
   AppComponent,
   AppComponentProps,
   AppComponentDispatch
 } from './components';
-import { STATE_PATHS, ACTION_TYPES, AppointmentState } from './types';
 
 export const AppContainer = createContainer(
   (getSlice): AppComponentProps => {
-    const appointmentState: AppointmentState = getSlice(
-      STATE_PATHS.APPOINTMENTS
-    );
+    const appointmentState = getSlice('Appointments');
     return {
       appointments: appointmentState.appointments
     };
   },
+  // TODO: fix dispatch type
   (dispatch): AppComponentDispatch => {
     return {
       addAppointment(time, duration) {
-        dispatch(ACTION_TYPES.ADD_APPOINTMENT, time, duration);
+        dispatch('AddAppointment', { time, duration });
       },
       cancelAppointment(appointment) {
-        dispatch(ACTION_TYPES.CANCEL_APPOINTMENT, appointment);
+        dispatch('CancelAppointment', appointment);
       }
     };
   },

@@ -1,3 +1,4 @@
+"use strict";
 /*
 MIT License
 
@@ -21,13 +22,5 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
-import { render } from 'react-dom';
-import { createRoot } from './reduxology';
-
-import './reducers';
-import './listeners';
-
-import { AppContainer } from './containers';
-
-render(createRoot(AppContainer), document.getElementById('root'));
+Object.defineProperty(exports, "__esModule", { value: true });
+//# sourceMappingURL=util.js.map

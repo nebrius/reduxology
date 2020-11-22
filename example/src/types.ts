@@ -22,17 +22,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-export const STATE_PATHS = {
-  USERS: 'USERS',
-  APPOINTMENTS: 'APPOINTMENTS'
-};
+export interface Actions {
+  AddAppointment: {
+    time: number;
+    duration: number;
+  };
+  CancelAppointment: Appointment;
+}
 
-export const ACTION_TYPES = {
-  ADD_APPOINTMENT: 'ADD_APPOINTMENT',
-  CANCEL_APPOINTMENT: 'CANCEL_APPOINTMENT'
-};
+export interface State {
+  Appointments: AppointmentState;
+}
 
 export interface Appointment {
+  id: number;
   time: number;
   duration: number;
 }

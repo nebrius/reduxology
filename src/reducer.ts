@@ -24,34 +24,52 @@ SOFTWARE.
 
 import { Reducer as ReduxReducer } from 'redux';
 import produce from 'immer';
-
-export type ReducerActionListener = (state: any, ...actionData: any[]) => void;
+import { VoidKeys } from './util';
 
 export const reduxReducer = Symbol('reduxReducer');
 const actionHandlers = Symbol('actionHandlers');
 
-export class Reducer {
+type Handler<S, A> = (slice: S, action: A) => S;
+
+export class Reducer<
+  TSliceRecord,
+  TActionsRecord,
+  ActionVK extends VoidKeys<TActionsRecord> = VoidKeys<TActionsRecord>,
+  ActionNVK extends Exclude<keyof TActionsRecord, ActionVK> = Exclude<
+    keyof TActionsRecord,
+    ActionVK
+  >
+> {
   public [reduxReducer]: ReduxReducer;
-  private [actionHandlers]: Record<string, ReducerActionListener> = {};
+  private [actionHandlers]: Record<
+    string,
+    (state: any, actionData: any) => void
+  > = {};
 
   constructor(init: any) {
+    this.handle = this.handle.bind(this);
+
     this[reduxReducer] = (state: any, action: any) => {
       if (typeof state === 'undefined') {
         state = init;
       }
       if (this[actionHandlers].hasOwnProperty(action.type)) {
         return produce(state, (draftState: any) => {
-          return this[actionHandlers][action.type](draftState, ...action.data);
+          return this[actionHandlers][action.type](draftState, action.data);
         });
       }
       return state;
     };
   }
-
-  public handle = (
+  public handle<P extends ActionNVK>(
+    action: P,
+    handler: Handler<TSliceRecord, TActionsRecord[P]>
+  ): void;
+  public handle<P extends ActionVK>(action: P, handler: () => void): void;
+  public handle(
     actionType: string,
-    handler: ReducerActionListener
-  ): Reducer => {
+    handler: (state: any, actionData: any) => void
+  ): Reducer<TSliceRecord, TActionsRecord> {
     if (this[actionHandlers].hasOwnProperty(actionType)) {
       throw new Error(
         `An action handler for ${actionType} has already been registered`
@@ -59,7 +77,7 @@ export class Reducer {
     }
     this[actionHandlers][actionType] = handler;
     return this;
-  };
+  }
 
   public removeHandler = (actionType: string): void => {
     delete this[actionHandlers][actionType];

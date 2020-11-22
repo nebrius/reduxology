@@ -24,7 +24,6 @@ SOFTWARE.
 
 import * as React from 'react';
 import { Provider, ConnectedComponent, connect } from 'react-redux';
-import { Dispatch } from 'react';
 import {
   createStore,
   Store,
@@ -33,46 +32,65 @@ import {
   Middleware,
   applyMiddleware
 } from 'redux';
-import { State } from './state';
+import { GetSlice, State } from './state';
 import { Reducer, reduxReducer } from './reducer';
+import { VoidKeys } from './util';
 
-export { ReducerActionListener } from './reducer';
-export type ActionListener = (...actionData: any[]) => void;
-export type MapStateToProps = (
-  getSlice: (slice: string) => any,
-  ownProps?: any
-) => any;
-export type MapDispatchToProps = (
-  dispatch: (action: string, ...data: any[]) => void,
-  ownProps?: any
-) => any;
+type Listener<T> = (data: T) => void;
 
 const reducers = Symbol('reducers');
 const store = Symbol('store');
 const actionListeners = Symbol('actionListeners');
 
-export class Reduxology {
-  private [reducers]: Record<string, Reducer> = {};
+// The type implementation for this is borrowed from Brian Terlson's work:
+// https://medium.com/@bterlson/strongly-typed-event-emitters-2c2345801de8
+export class Reduxology<
+  TStateRecord,
+  TActionsRecord,
+  ActionVK extends VoidKeys<TActionsRecord> = VoidKeys<TActionsRecord>,
+  ActionNVK extends Exclude<keyof TActionsRecord, ActionVK> = Exclude<
+    keyof TActionsRecord,
+    ActionVK
+  >,
+  DispatchVK extends VoidKeys<TActionsRecord> = VoidKeys<TActionsRecord>,
+  DispatchNVK extends Exclude<keyof TActionsRecord, DispatchVK> = Exclude<
+    keyof TActionsRecord,
+    DispatchVK
+  >
+> {
+  private [reducers]: Record<any, Reducer<any, TActionsRecord>> = {};
+  private [actionListeners]: Record<any, Listener<any>[]> = {};
   private [store]: Store;
-  private [actionListeners]: Record<string, ActionListener[]> = {};
+
+  constructor() {
+    // We can't use class fields to bind these methods using arrow functions,
+    // since we have to use overloaded TypeScript signatures which don't support
+    // class fields, so we bind these the old fashion way instead
+    this.dispatch = this.dispatch.bind(this);
+    this.listen = this.listen.bind(this);
+  }
 
   public createContainer = (
-    mapStateToProps: MapStateToProps,
-    mapDispatchToProps: MapDispatchToProps,
+    mapStateToProps: (getSlice: GetSlice<TStateRecord>, ownProps?: any) => any,
+    mapDispatchToProps: (
+      dispatch:
+        | (<P extends DispatchNVK>(action: P, data: TActionsRecord[P]) => void)
+        | (<P extends DispatchVK>(action: P) => void),
+      ownProps?: any
+    ) => any,
     component: any
   ): ConnectedComponent<any, Pick<unknown, never>> => {
     return connect(
       (rawState: any, ownProps) =>
-        mapStateToProps(new State(rawState).getSlice, ownProps),
-      (rawDispatch: Dispatch<any>, ownProps) =>
-        mapDispatchToProps(
-          (type, ...data) => rawDispatch({ type, data }),
-          ownProps
-        )
+        mapStateToProps(new State<TStateRecord>(rawState).getSlice, ownProps),
+      (rawDispatch, ownProps) => mapDispatchToProps(this.dispatch, ownProps)
     )(component);
   };
 
-  public createReducer = (slice: string, initialData: any): Reducer => {
+  public createReducer = <K extends keyof TStateRecord>(
+    slice: K,
+    initialData: TStateRecord[K]
+  ): Reducer<TStateRecord[K], TActionsRecord> => {
     if (typeof slice !== 'string') {
       throw new Error('"slice" argument must be a string');
     }
@@ -81,14 +99,19 @@ export class Reduxology {
         `Cannot create reducer at ${slice} because that slice is already taken`
       );
     }
-    const reducer = new Reducer(initialData);
+    const reducer = new Reducer<TStateRecord[K], TActionsRecord>(initialData);
     this[reducers][slice] = reducer;
     return reducer;
   };
 
-  public dispatch = (type: string, ...data: any[]): void => {
-    this[store].dispatch({ type, data });
-  };
+  public dispatch<P extends DispatchNVK>(
+    action: P,
+    data: TActionsRecord[P]
+  ): void;
+  public dispatch<P extends DispatchVK>(action: P): void;
+  public dispatch(action: any, data?: any): void {
+    this[store].dispatch({ type: action, data });
+  }
 
   public createRoot = (
     Container: any,
@@ -102,7 +125,7 @@ export class Reduxology {
     middleware.unshift(() => (next) => (action) => {
       if (this[actionListeners][action.type]) {
         for (const listener of this[actionListeners][action.type]) {
-          listener(...action.data);
+          listener(action.data);
         }
       }
       return next(action);
@@ -118,12 +141,17 @@ export class Reduxology {
     );
   };
 
-  public listen = (actionType: string, listener: ActionListener): void => {
-    if (!this[actionListeners].hasOwnProperty(actionType)) {
-      this[actionListeners][actionType] = [];
+  public listen<P extends ActionNVK>(
+    action: P,
+    listener: Listener<TActionsRecord[P]>
+  ): void;
+  public listen<P extends ActionVK>(action: P, listener: () => void): void;
+  public listen(action: any, listener: Listener<any> | (() => void)): void {
+    if (!this[actionListeners].hasOwnProperty(action)) {
+      this[actionListeners][action] = [];
     }
-    this[actionListeners][actionType].push(listener);
-  };
+    this[actionListeners][action].push(listener);
+  }
 }
 
 const defaultReduxology = new Reduxology();

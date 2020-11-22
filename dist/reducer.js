@@ -31,30 +31,31 @@ const actionHandlers = Symbol('actionHandlers');
 class Reducer {
     constructor(init) {
         this[_a] = {};
-        this.handle = (actionType, handler) => {
-            if (this[actionHandlers].hasOwnProperty(actionType)) {
-                throw new Error(`An action handler for ${actionType} has already been registered`);
-            }
-            this[actionHandlers][actionType] = handler;
-            return this;
-        };
         this.removeHandler = (actionType) => {
             delete this[actionHandlers][actionType];
         };
         this.isHandlerRegistered = (actionType) => {
             return this[actionHandlers].hasOwnProperty(actionType);
         };
+        this.handle = this.handle.bind(this);
         this[exports.reduxReducer] = (state, action) => {
             if (typeof state === 'undefined') {
                 state = init;
             }
             if (this[actionHandlers].hasOwnProperty(action.type)) {
                 return immer_1.default(state, (draftState) => {
-                    return this[actionHandlers][action.type](draftState, ...action.data);
+                    return this[actionHandlers][action.type](draftState, action.data);
                 });
             }
             return state;
         };
+    }
+    handle(actionType, handler) {
+        if (this[actionHandlers].hasOwnProperty(actionType)) {
+            throw new Error(`An action handler for ${actionType} has already been registered`);
+        }
+        this[actionHandlers][actionType] = handler;
+        return this;
     }
 }
 exports.Reducer = Reducer;

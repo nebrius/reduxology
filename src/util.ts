@@ -22,12 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import { render } from 'react-dom';
-import { createRoot } from './reduxology';
+type MatchingKeys<
+  TRecord,
+  TMatch,
+  K extends keyof TRecord = keyof TRecord
+> = K extends (TRecord[K] extends TMatch ? K : never) ? K : never;
 
-import './reducers';
-import './listeners';
-
-import { AppContainer } from './containers';
-
-render(createRoot(AppContainer), document.getElementById('root'));
+export type VoidKeys<Record> = MatchingKeys<Record, void>;

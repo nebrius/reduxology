@@ -37,7 +37,7 @@ export interface AppComponentDispatch {
 export class AppComponent extends React.Component<
   AppComponentProps & AppComponentDispatch
 > {
-  public render() {
+  public render(): JSX.Element {
     return (
       <div>
         {this.props.appointments.map((appointment) => (

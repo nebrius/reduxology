@@ -22,33 +22,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import { createReducer } from 'reduxology';
-import {
-  STATE_PATHS,
-  ACTION_TYPES,
-  Appointment,
-  AppointmentState
-} from './types';
+import { createReducer } from './reduxology';
 
-const init: AppointmentState = {
+const appointmentsReducer = createReducer('Appointments', {
   appointments: []
-};
+});
 
-createReducer(STATE_PATHS.APPOINTMENTS, init)
-  .handle(
-    ACTION_TYPES.ADD_APPOINTMENT,
-    (state: AppointmentState, time: number, duration: number) => {
-      state.appointments.push({ time, duration });
-    }
-  )
+// TODO: fix handle type
+appointmentsReducer.handle('AddAppointment', (state, { time, duration }) => {
+  state.appointments.push({ time, duration });
+});
 
-  .handle(
-    ACTION_TYPES.CANCEL_APPOINTMENT,
-    (state: AppointmentState, appointmentToCancel: Appointment) => {
-      for (let i = 0; i < state.appointments.length; i++) {
-        if (state.appointments[i].time === appointmentToCancel.time) {
-          state.appointments.splice(i, 1);
-        }
+// TODO: fix handle type
+appointmentsReducer.handle(
+  'CancelAppointment',
+  (state, appointmentToCancel) => {
+    for (let i = 0; i < state.appointments.length; i++) {
+      if (state.appointments[i].time === appointmentToCancel.time) {
+        state.appointments.splice(i, 1);
       }
     }
-  );
+  }
+);

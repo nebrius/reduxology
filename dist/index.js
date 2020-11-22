@@ -33,12 +33,14 @@ const reducer_1 = require("./reducer");
 const reducers = Symbol('reducers');
 const store = Symbol('store');
 const actionListeners = Symbol('actionListeners');
+// The type implementation for this is borrowed from Brian Terlson's work:
+// https://medium.com/@bterlson/strongly-typed-event-emitters-2c2345801de8
 class Reduxology {
     constructor() {
         this[_a] = {};
         this[_b] = {};
         this.createContainer = (mapStateToProps, mapDispatchToProps, component) => {
-            return react_redux_1.connect((rawState, ownProps) => mapStateToProps(new state_1.State(rawState).getSlice, ownProps), (rawDispatch, ownProps) => mapDispatchToProps((type, ...data) => rawDispatch({ type, data }), ownProps))(component);
+            return react_redux_1.connect((rawState, ownProps) => mapStateToProps(new state_1.State(rawState).getSlice, ownProps), (rawDispatch, ownProps) => mapDispatchToProps(this.dispatch, ownProps))(component);
         };
         this.createReducer = (slice, initialData) => {
             if (typeof slice !== 'string') {
@@ -51,9 +53,6 @@ class Reduxology {
             this[reducers][slice] = reducer;
             return reducer;
         };
-        this.dispatch = (type, ...data) => {
-            this[store].dispatch({ type, data });
-        };
         this.createRoot = (Container, ...middleware) => {
             const reducerSet = {};
             for (const dataType in this[reducers]) {
@@ -63,7 +62,7 @@ class Reduxology {
             middleware.unshift(() => (next) => (action) => {
                 if (this[actionListeners][action.type]) {
                     for (const listener of this[actionListeners][action.type]) {
-                        listener(...action.data);
+                        listener(action.data);
                     }
                 }
                 return next(action);
@@ -72,12 +71,20 @@ class Reduxology {
             return (React.createElement(react_redux_1.Provider, { store: this[store] },
                 React.createElement(Container, null)));
         };
-        this.listen = (actionType, listener) => {
-            if (!this[actionListeners].hasOwnProperty(actionType)) {
-                this[actionListeners][actionType] = [];
-            }
-            this[actionListeners][actionType].push(listener);
-        };
+        // We can't use class fields to bind these methods using arrow functions,
+        // since we have to use overloaded TypeScript signatures which don't support
+        // class fields, so we bind these the old fashion way instead
+        this.dispatch = this.dispatch.bind(this);
+        this.listen = this.listen.bind(this);
+    }
+    dispatch(action, data) {
+        this[store].dispatch({ type: action, data });
+    }
+    listen(action, listener) {
+        if (!this[actionListeners].hasOwnProperty(action)) {
+            this[actionListeners][action] = [];
+        }
+        this[actionListeners][action].push(listener);
     }
 }
 exports.Reduxology = Reduxology;
