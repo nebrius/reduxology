@@ -1,3 +1,4 @@
+"use strict";
 /*
 MIT License
 
@@ -21,32 +22,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
-import { createReducer } from './reduxology';
-
-const appointmentsReducer = createReducer('Appointments', {
-  appointments: []
-});
-
-appointmentsReducer.handle('AddAppointment', (state, { time, duration }) => {
-  let id = 0;
-  for (const appointment of state.appointments) {
-    if (id <= appointment.id) {
-      id = appointment.id + 1;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Listener = exports.listenerListener = exports.listenerAction = void 0;
+exports.listenerAction = Symbol();
+exports.listenerListener = Symbol();
+class Listener {
+    constructor(actionName, newListener) {
+        this[exports.listenerAction] = actionName;
+        this[exports.listenerListener] = newListener;
     }
-  }
-  state.appointments.push({ id, time, duration });
-});
-
-appointmentsReducer.handle(
-  'CancelAppointment',
-  (state, appointmentToCancel) => {
-    for (let i = 0; i < state.appointments.length; i++) {
-      if (state.appointments[i].time === appointmentToCancel.time) {
-        state.appointments.splice(i, 1);
-      }
-    }
-  }
-);
-
-export const reducers = [appointmentsReducer];
+}
+exports.Listener = Listener;
+//# sourceMappingURL=listener.js.map

@@ -22,16 +22,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import { listen } from './reduxology';
+import { createListener } from './reduxology';
 
-listen('AddAppointment', ({ time, duration }) => {
-  console.log(
-    `Add appointment action dispatched with time ${time} and duration ${duration}`
-  );
-});
+const addAppointmentListener = createListener(
+  'AddAppointment',
+  ({ time, duration }) => {
+    console.log(
+      `Add appointment action dispatched with time ${time} and duration ${duration}`
+    );
+  }
+);
 
-listen('CancelAppointment', (appointmentToCancel) => {
-  console.log(
-    `Cancel appointment action dispatched with appointment ${appointmentToCancel}`
-  );
-});
+const cancelAppointmentListener = createListener(
+  'CancelAppointment',
+  (appointmentToCancel) => {
+    console.log(
+      `Cancel appointment action dispatched with appointment ${appointmentToCancel}`
+    );
+  }
+);
+
+export const listeners = [addAppointmentListener, cancelAppointmentListener];

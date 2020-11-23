@@ -13,7 +13,7 @@
     "http-server": "^0.12.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "reduxology": "^1.0.0"
+    "reduxology": "^2.0.0"
   },
   "devDependencies": {
     "@types/react": "^16.9.17",

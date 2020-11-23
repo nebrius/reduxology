@@ -33,14 +33,17 @@ import {
   applyMiddleware
 } from 'redux';
 import { GetSlice, State } from './state';
-import { Reducer, reduxReducer } from './reducer';
+import { Reducer, reduxReducer, reducerSlice } from './reducer';
+import {
+  Listener,
+  ListenerFunc,
+  listenerAction,
+  listenerListener
+} from './listener';
 import { VoidKeys } from './util';
 
-type Listener<T> = (data: T) => void;
-
-const reducers = Symbol('reducers');
-const store = Symbol('store');
-const actionListeners = Symbol('actionListeners');
+const store = Symbol();
+const actionListeners = Symbol();
 
 // The type implementation for this is borrowed from Brian Terlson's work:
 // https://medium.com/@bterlson/strongly-typed-event-emitters-2c2345801de8
@@ -58,8 +61,7 @@ export class Reduxology<
     DispatchVK
   >
 > {
-  private [reducers]: Record<any, Reducer<any, TActionsRecord>> = {};
-  private [actionListeners]: Record<any, Listener<any>[]> = {};
+  private [actionListeners]: Record<any, ListenerFunc<any>[]> = {};
   private [store]: Store;
 
   constructor() {
@@ -67,7 +69,7 @@ export class Reduxology<
     // since we have to use overloaded TypeScript signatures which don't support
     // class fields, so we bind these the old fashion way instead
     this.dispatch = this.dispatch.bind(this);
-    this.listen = this.listen.bind(this);
+    this.createListener = this.createListener.bind(this);
   }
 
   public createContainer = (
@@ -89,17 +91,77 @@ export class Reduxology<
     slice: K,
     initialData: TStateRecord[K]
   ): Reducer<TStateRecord[K], TActionsRecord> => {
-    if (typeof slice !== 'string') {
-      throw new Error('"slice" argument must be a string');
+    return new Reducer<TStateRecord[K], TActionsRecord>(
+      slice as string,
+      initialData
+    );
+  };
+
+  public createListener<P extends ActionNVK>(
+    action: P,
+    listener: ListenerFunc<TActionsRecord[P]>
+  ): Listener;
+  public createListener<P extends ActionVK>(
+    action: P,
+    listener: () => void
+  ): Listener;
+  public createListener(
+    action: any,
+    listener: ListenerFunc<any> | (() => void)
+  ): Listener {
+    return new Listener(action, listener);
+  }
+
+  public createApp = ({
+    container: Container,
+    reducers: appReducers = [],
+    listeners: appListeners = [],
+    middleware = []
+  }: {
+    container: any;
+    listeners?: Listener[];
+    reducers?: Reducer<unknown, TActionsRecord>[];
+    middleware?: Middleware[];
+  }): JSX.Element => {
+    const reducerSet: Record<string, ReduxReducer> = {};
+
+    for (const appReducer of appReducers) {
+      const slice = appReducer[reducerSlice];
+      if (reducerSet[slice]) {
+        throw new Error(
+          `Cannot create reducer at ${slice} because that slice is already taken`
+        );
+      }
+      reducerSet[slice] = appReducer[reduxReducer];
     }
-    if (this[reducers].hasOwnProperty(slice)) {
-      throw new Error(
-        `Cannot create reducer at ${slice} because that slice is already taken`
-      );
+
+    for (const appListener of appListeners) {
+      const action = appListener[listenerAction];
+      if (!this[actionListeners].hasOwnProperty(action)) {
+        this[actionListeners][action] = [];
+      }
+      this[actionListeners][action].push(appListener[listenerListener]);
     }
-    const reducer = new Reducer<TStateRecord[K], TActionsRecord>(initialData);
-    this[reducers][slice] = reducer;
-    return reducer;
+
+    middleware.unshift(() => (next) => (action) => {
+      if (this[actionListeners][action.type]) {
+        for (const listener of this[actionListeners][action.type]) {
+          listener(action.data);
+        }
+      }
+      return next(action);
+    });
+
+    this[store] = createStore(
+      combineReducers(reducerSet),
+      applyMiddleware(...middleware)
+    );
+
+    return (
+      <Provider store={this[store]}>
+        <Container />
+      </Provider>
+    );
   };
 
   public dispatch<P extends DispatchNVK>(
@@ -110,52 +172,12 @@ export class Reduxology<
   public dispatch(action: any, data?: any): void {
     this[store].dispatch({ type: action, data });
   }
-
-  public createRoot = (
-    Container: any,
-    ...middleware: Middleware[]
-  ): JSX.Element => {
-    const reducerSet: Record<string, ReduxReducer> = {};
-    for (const dataType in this[reducers]) {
-      const reducer = this[reducers][dataType];
-      reducerSet[dataType] = reducer[reduxReducer];
-    }
-    middleware.unshift(() => (next) => (action) => {
-      if (this[actionListeners][action.type]) {
-        for (const listener of this[actionListeners][action.type]) {
-          listener(action.data);
-        }
-      }
-      return next(action);
-    });
-    this[store] = createStore(
-      combineReducers(reducerSet),
-      applyMiddleware(...middleware)
-    );
-    return (
-      <Provider store={this[store]}>
-        <Container />
-      </Provider>
-    );
-  };
-
-  public listen<P extends ActionNVK>(
-    action: P,
-    listener: Listener<TActionsRecord[P]>
-  ): void;
-  public listen<P extends ActionVK>(action: P, listener: () => void): void;
-  public listen(action: any, listener: Listener<any> | (() => void)): void {
-    if (!this[actionListeners].hasOwnProperty(action)) {
-      this[actionListeners][action] = [];
-    }
-    this[actionListeners][action].push(listener);
-  }
 }
 
 const defaultReduxology = new Reduxology();
 
 export const createContainer = defaultReduxology.createContainer;
 export const createReducer = defaultReduxology.createReducer;
-export const createRoot = defaultReduxology.createRoot;
+export const createListener = defaultReduxology.createListener;
+export const createApp = defaultReduxology.createApp;
 export const dispatch = defaultReduxology.dispatch;
-export const listen = defaultReduxology.listen;

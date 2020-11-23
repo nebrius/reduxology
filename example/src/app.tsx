@@ -23,11 +23,16 @@ SOFTWARE.
 */
 
 import { render } from 'react-dom';
-import { createRoot } from './reduxology';
-
-import './reducers';
-import './listeners';
+import { createApp } from './reduxology';
+import { listeners } from './listeners';
+import { reducers } from './reducers';
 
 import { AppContainer } from './containers';
 
-render(createRoot(AppContainer), document.getElementById('root'));
+const app = createApp({
+  container: AppContainer,
+  reducers,
+  listeners
+});
+
+render(app, document.getElementById('root'));

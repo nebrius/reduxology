@@ -22,31 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import { createReducer } from './reduxology';
+export const listenerAction = Symbol();
+export const listenerListener = Symbol();
 
-const appointmentsReducer = createReducer('Appointments', {
-  appointments: []
-});
+export type ListenerFunc<T> = (data: T) => void;
 
-appointmentsReducer.handle('AddAppointment', (state, { time, duration }) => {
-  let id = 0;
-  for (const appointment of state.appointments) {
-    if (id <= appointment.id) {
-      id = appointment.id + 1;
-    }
+export class Listener {
+  public [listenerAction]: string;
+  public [listenerListener]: ListenerFunc<unknown>;
+  constructor(actionName: string, newListener: ListenerFunc<unknown>) {
+    this[listenerAction] = actionName;
+    this[listenerListener] = newListener;
   }
-  state.appointments.push({ id, time, duration });
-});
-
-appointmentsReducer.handle(
-  'CancelAppointment',
-  (state, appointmentToCancel) => {
-    for (let i = 0; i < state.appointments.length; i++) {
-      if (state.appointments[i].time === appointmentToCancel.time) {
-        state.appointments.splice(i, 1);
-      }
-    }
-  }
-);
-
-export const reducers = [appointmentsReducer];
+}

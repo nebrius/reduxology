@@ -22,42 +22,43 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-var _a, _b;
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.listen = exports.dispatch = exports.createRoot = exports.createReducer = exports.createContainer = exports.Reduxology = void 0;
+exports.dispatch = exports.createApp = exports.createListener = exports.createReducer = exports.createContainer = exports.Reduxology = void 0;
 const React = require("react");
 const react_redux_1 = require("react-redux");
 const redux_1 = require("redux");
 const state_1 = require("./state");
 const reducer_1 = require("./reducer");
-const reducers = Symbol('reducers');
-const store = Symbol('store');
-const actionListeners = Symbol('actionListeners');
+const listener_1 = require("./listener");
+const store = Symbol();
+const actionListeners = Symbol();
 // The type implementation for this is borrowed from Brian Terlson's work:
 // https://medium.com/@bterlson/strongly-typed-event-emitters-2c2345801de8
 class Reduxology {
     constructor() {
         this[_a] = {};
-        this[_b] = {};
         this.createContainer = (mapStateToProps, mapDispatchToProps, component) => {
             return react_redux_1.connect((rawState, ownProps) => mapStateToProps(new state_1.State(rawState).getSlice, ownProps), (_, ownProps) => mapDispatchToProps(this.dispatch, ownProps))(component);
         };
         this.createReducer = (slice, initialData) => {
-            if (typeof slice !== 'string') {
-                throw new Error('"slice" argument must be a string');
-            }
-            if (this[reducers].hasOwnProperty(slice)) {
-                throw new Error(`Cannot create reducer at ${slice} because that slice is already taken`);
-            }
-            const reducer = new reducer_1.Reducer(initialData);
-            this[reducers][slice] = reducer;
-            return reducer;
+            return new reducer_1.Reducer(slice, initialData);
         };
-        this.createRoot = (Container, ...middleware) => {
+        this.createApp = ({ container: Container, reducers: appReducers = [], listeners: appListeners = [], middleware = [] }) => {
             const reducerSet = {};
-            for (const dataType in this[reducers]) {
-                const reducer = this[reducers][dataType];
-                reducerSet[dataType] = reducer[reducer_1.reduxReducer];
+            for (const appReducer of appReducers) {
+                const slice = appReducer[reducer_1.reducerSlice];
+                if (reducerSet[slice]) {
+                    throw new Error(`Cannot create reducer at ${slice} because that slice is already taken`);
+                }
+                reducerSet[slice] = appReducer[reducer_1.reduxReducer];
+            }
+            for (const appListener of appListeners) {
+                const action = appListener[listener_1.listenerAction];
+                if (!this[actionListeners].hasOwnProperty(action)) {
+                    this[actionListeners][action] = [];
+                }
+                this[actionListeners][action].push(appListener[listener_1.listenerListener]);
             }
             middleware.unshift(() => (next) => (action) => {
                 if (this[actionListeners][action.type]) {
@@ -75,24 +76,21 @@ class Reduxology {
         // since we have to use overloaded TypeScript signatures which don't support
         // class fields, so we bind these the old fashion way instead
         this.dispatch = this.dispatch.bind(this);
-        this.listen = this.listen.bind(this);
+        this.createListener = this.createListener.bind(this);
+    }
+    createListener(action, listener) {
+        return new listener_1.Listener(action, listener);
     }
     dispatch(action, data) {
         this[store].dispatch({ type: action, data });
     }
-    listen(action, listener) {
-        if (!this[actionListeners].hasOwnProperty(action)) {
-            this[actionListeners][action] = [];
-        }
-        this[actionListeners][action].push(listener);
-    }
 }
 exports.Reduxology = Reduxology;
-_a = reducers, _b = actionListeners;
+_a = actionListeners;
 const defaultReduxology = new Reduxology();
 exports.createContainer = defaultReduxology.createContainer;
 exports.createReducer = defaultReduxology.createReducer;
-exports.createRoot = defaultReduxology.createRoot;
+exports.createListener = defaultReduxology.createListener;
+exports.createApp = defaultReduxology.createApp;
 exports.dispatch = defaultReduxology.dispatch;
-exports.listen = defaultReduxology.listen;
 //# sourceMappingURL=index.js.map

@@ -24,12 +24,13 @@ SOFTWARE.
 */
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Reducer = exports.reduxReducer = void 0;
+exports.Reducer = exports.reducerSlice = exports.reduxReducer = void 0;
 const immer_1 = require("immer");
-exports.reduxReducer = Symbol('reduxReducer');
-const actionHandlers = Symbol('actionHandlers');
+exports.reduxReducer = Symbol();
+exports.reducerSlice = Symbol();
+const actionHandlers = Symbol();
 class Reducer {
-    constructor(init) {
+    constructor(sliceName, init) {
         this[_a] = {};
         this.removeHandler = (actionType) => {
             delete this[actionHandlers][actionType];
@@ -37,6 +38,7 @@ class Reducer {
         this.isHandlerRegistered = (actionType) => {
             return this[actionHandlers].hasOwnProperty(actionType);
         };
+        this[exports.reducerSlice] = sliceName;
         this.handle = this.handle.bind(this);
         this[exports.reduxReducer] = (state, action) => {
             if (typeof state === 'undefined') {

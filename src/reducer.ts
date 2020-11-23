@@ -26,8 +26,9 @@ import { Reducer as ReduxReducer } from 'redux';
 import produce from 'immer';
 import { VoidKeys } from './util';
 
-export const reduxReducer = Symbol('reduxReducer');
-const actionHandlers = Symbol('actionHandlers');
+export const reduxReducer = Symbol();
+export const reducerSlice = Symbol();
+const actionHandlers = Symbol();
 
 type Handler<S, A> = (slice: S, action: A) => void;
 
@@ -40,13 +41,16 @@ export class Reducer<
     ActionVK
   >
 > {
-  public [reduxReducer]: ReduxReducer;
   private [actionHandlers]: Record<
     string,
     (state: any, actionData: any) => void
   > = {};
 
-  constructor(init: any) {
+  public [reduxReducer]: ReduxReducer;
+  public [reducerSlice]: string;
+
+  constructor(sliceName: string, init: any) {
+    this[reducerSlice] = sliceName;
     this.handle = this.handle.bind(this);
 
     this[reduxReducer] = (state: any, action: any) => {
@@ -61,6 +65,7 @@ export class Reducer<
       return state;
     };
   }
+
   public handle<P extends ActionNVK>(
     action: P,
     handler: Handler<TSliceRecord, TActionsRecord[P]>
