@@ -55,7 +55,7 @@ In vanilla Redux, the location of a slice in the store is implicit in the struct
 
 ### Reducers
 
-To create a reducer, we use the [createReducer()](#createreducerslice-initialdata--reducer) function. We pass in two arguments: the slice name, and the data to initialize this reducer with. This function returns an object that we can register _action handlers_ with, which run the actual reducer code. An action handler is very similar to an event handler. An action handler listens for a specific action type, and calls the associated function when the action type is dispatched.
+To create a reducer, we use the [createReducer()](#createreducerslicename-initialdata--reducer) function. We pass in two arguments: the slice name, and the data to initialize this reducer with. This function returns an object that we can register _action handlers_ with, which run the actual reducer code. An action handler is very similar to an event handler. An action handler listens for a specific action type, and calls the associated function when the action type is dispatched.
 
 There is are two core differences between an action handler and an event listener. Each action type can only have _one_ action handler associated with it per reducer. [handle()](#reducerhandleactiontype-handler--reducer) will throw an exception if you try to register more than one handler.
 
@@ -94,7 +94,7 @@ _Note:_ you do not need to register any handlers to create the reducer. The redu
 
 Containers look quite similar to vanilla React Redux containers, except that there is a single function call to [createContainer()](#createcontainermapstatetoprops-mapdispatchtoprops-component--react-redux-container) instead of a double call to `connect()` and the function it returns. The first argument is mapStateToProps, and the second is mapDispatchToProps, same as in React Redux.
 
-A key difference between React Redux and Reduxology is the argument passed to the mapDispatchToProps function. In traditional React Redux this argument is a plain ole JavaScript object containing the entire state, typically called `state`. In Reduxology, this argument is a function, typically called `getSlice`. Your container can then call `getSlice()` with a slice name, and it returns that piece of state. At first, this value will be the same as the initialization value passed to [createReducer()](#createreducerslice-initialdata--reducer).
+A key difference between React Redux and Reduxology is the argument passed to the mapDispatchToProps function. In traditional React Redux this argument is a plain ole JavaScript object containing the entire state, typically called `state`. In Reduxology, this argument is a function, typically called `getSlice`. Your container can then call `getSlice()` with a slice name, and it returns that piece of state. At first, this value will be the same as the initialization value passed to [createReducer()](#createreducerslicename-initialdata--reducer).
 
 ```JavaScript
 // containers.ts
@@ -122,7 +122,7 @@ export const AppContainer = createContainer(
 
 ### Action Listeners
 
-Middleware is a large topic for Redux. Reduxology supports using existing Redux middleware via the [createApp()](#createrootcontainer--react-component) function. This is useful if you want to pass in off-the-shelf Redux middleware, such as [redux-thunk](https://github.com/reduxjs/redux-thunk) or [redux-saga](https://github.com/redux-saga/redux-saga).
+Middleware is a large topic for Redux. Reduxology supports using existing Redux middleware via the [createApp()](#createappoptions--react-component) function. This is useful if you want to pass in off-the-shelf Redux middleware, such as [redux-thunk](https://github.com/reduxjs/redux-thunk) or [redux-saga](https://github.com/redux-saga/redux-saga).
 
 If you want to write your own middleware, Reduxology offers a simplified interface for addressing what I believe is the most common use case that middleware provides for: API calls. This interface is called an _action listener_. An action listener listens for, well, actions. An action listener is virtually indistinguishable from a general JavaScript event listener in practice, and is invoked whenever an action is dispatched.
 
@@ -149,7 +149,7 @@ Technical note: Although this action listener is an `async` function, action lis
 
 ### App Creation
 
-Reduxology provides a function called [createApp()](#createrootcontainer--react-component) that ties everything together. This function returns a functioning React element you can pass to React's `render` method. Under the hood, it creates a `<Provider>` React-Redux element for you and automatically wires the store, reducers, and action listeners into it.
+Reduxology provides a function called [createApp()](#createappoptions--react-component) that ties everything together. This function returns a functioning React element you can pass to React's `render` method. Under the hood, it creates a `<Provider>` React-Redux element for you and automatically wires the store, reducers, and action listeners into it.
 
 ```JavaScript
 // index.ts
@@ -531,12 +531,12 @@ Creates a root-level React component to be passed to React's `render()` method. 
     <tr>
       <td>reducers?</td>
       <td>Array of Reducers</td>
-      <td>An array of reducers to wire up, created via <a href="">createReducer()</a></td>
+      <td>An array of reducers to wire up, created via <a href="#createreducerslicename-initialdata--reducer">createReducer()</a></td>
     </tr>
     <tr>
       <td>listeners?</td>
       <td>Array of Listeners</td>
-      <td>An array of listeners to wire up, created via <a href="">createListener()</a></td>
+      <td>An array of listeners to wire up, created via <a href="#createlisteneractiontype-listener">createListener()</a></td>
     </tr>
     <tr>
       <td>middleware?</td>
