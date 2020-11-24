@@ -33,7 +33,12 @@ import {
   applyMiddleware
 } from 'redux';
 import { GetSlice, State } from './state';
-import { Reducer, reduxReducer, reducerSlice } from './reducer';
+import {
+  Reducer,
+  reduxReducer,
+  reducerSlice,
+  makeReducerAlive
+} from './reducer';
 import {
   Listener,
   ListenerFunc,
@@ -44,6 +49,7 @@ import { VoidKeys } from './util';
 
 const store = Symbol();
 const actionListeners = Symbol();
+const isAlive = Symbol();
 
 // The type implementation for this is borrowed from Brian Terlson's work:
 // https://medium.com/@bterlson/strongly-typed-event-emitters-2c2345801de8
@@ -63,6 +69,7 @@ export class Reduxology<
 > {
   private [actionListeners]: Record<any, ListenerFunc<any>[]> = {};
   private [store]: Store;
+  private [isAlive] = false;
 
   constructor() {
     // We can't use class fields to bind these methods using arrow functions,
@@ -91,6 +98,9 @@ export class Reduxology<
     slice: K,
     initialData: TStateRecord[K]
   ): Reducer<TStateRecord[K], TActionsRecord> => {
+    if (this[isAlive]) {
+      throw new Error('Cannot create a reducer after the app has been created');
+    }
     return new Reducer<TStateRecord[K], TActionsRecord>(
       slice as string,
       initialData
@@ -109,6 +119,11 @@ export class Reduxology<
     action: any,
     listener: ListenerFunc<any> | (() => void)
   ): Listener {
+    if (this[isAlive]) {
+      throw new Error(
+        'Cannot create a listener after the app has been created'
+      );
+    }
     return new Listener(action, listener);
   }
 
@@ -123,6 +138,7 @@ export class Reduxology<
     reducers?: Reducer<unknown, TActionsRecord>[];
     middleware?: Middleware[];
   }): JSX.Element => {
+    this[isAlive] = true;
     const reducerSet: Record<string, ReduxReducer> = {};
 
     for (const appReducer of appReducers) {
@@ -132,6 +148,7 @@ export class Reduxology<
           `Cannot create reducer at ${slice} because that slice is already taken`
         );
       }
+      appReducer[makeReducerAlive]();
       reducerSet[slice] = appReducer[reduxReducer];
     }
 

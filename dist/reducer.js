@@ -22,17 +22,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-var _a;
+var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Reducer = exports.reducerSlice = exports.reduxReducer = void 0;
+exports.Reducer = exports.makeReducerAlive = exports.reducerSlice = exports.reduxReducer = void 0;
 const immer_1 = require("immer");
 immer_1.enableMapSet();
 exports.reduxReducer = Symbol();
 exports.reducerSlice = Symbol();
+exports.makeReducerAlive = Symbol();
 const actionHandlers = Symbol();
+const isAlive = Symbol();
 class Reducer {
     constructor(sliceName, init) {
         this[_a] = {};
+        this[_b] = false;
         this[exports.reducerSlice] = sliceName;
         this.handle = this.handle.bind(this);
         this[exports.reduxReducer] = (state, action) => {
@@ -48,13 +51,18 @@ class Reducer {
         };
     }
     handle(actionType, handler) {
+        if (this[isAlive]) {
+            throw new Error('Cannot attach a reducer handler after the app has been created');
+        }
         if (this[actionHandlers].hasOwnProperty(actionType)) {
             throw new Error(`An action handler for ${actionType} has already been registered`);
         }
         this[actionHandlers][actionType] = handler;
         return this;
     }
+    [(_a = actionHandlers, _b = isAlive, exports.makeReducerAlive)]() {
+        this[isAlive] = true;
+    }
 }
 exports.Reducer = Reducer;
-_a = actionHandlers;
 //# sourceMappingURL=reducer.js.map

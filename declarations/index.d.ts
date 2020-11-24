@@ -7,9 +7,11 @@ import { Listener, ListenerFunc } from './listener';
 import { VoidKeys } from './util';
 declare const store: unique symbol;
 declare const actionListeners: unique symbol;
+declare const isAlive: unique symbol;
 export declare class Reduxology<TStateRecord, TActionsRecord, ActionVK extends VoidKeys<TActionsRecord> = VoidKeys<TActionsRecord>, ActionNVK extends Exclude<keyof TActionsRecord, ActionVK> = Exclude<keyof TActionsRecord, ActionVK>, DispatchVK extends VoidKeys<TActionsRecord> = VoidKeys<TActionsRecord>, DispatchNVK extends Exclude<keyof TActionsRecord, DispatchVK> = Exclude<keyof TActionsRecord, DispatchVK>> {
     private [actionListeners];
     private [store];
+    private [isAlive];
     constructor();
     createContainer: (mapStateToProps: (getSlice: GetSlice<TStateRecord>, ownProps?: any) => any, mapDispatchToProps: (dispatch: Reduxology<TStateRecord, TActionsRecord>['dispatch'], ownProps?: any) => any, component: any) => ConnectedComponent<any, Pick<unknown, never>>;
     createReducer: <K extends keyof TStateRecord>(slice: K, initialData: TStateRecord[K]) => Reducer<TStateRecord[K], TActionsRecord, keyof TActionsRecord extends (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) ? (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) & keyof TActionsRecord : never, Exclude<keyof TActionsRecord, keyof TActionsRecord extends (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) ? (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) & keyof TActionsRecord : never>>;

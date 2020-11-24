@@ -30,7 +30,9 @@ enableMapSet();
 
 export const reduxReducer = Symbol();
 export const reducerSlice = Symbol();
+export const makeReducerAlive = Symbol();
 const actionHandlers = Symbol();
+const isAlive = Symbol();
 
 type Handler<S, A> = (slice: S, action: A) => void;
 
@@ -50,6 +52,7 @@ export class Reducer<
 
   public [reduxReducer]: ReduxReducer;
   public [reducerSlice]: string;
+  private [isAlive] = false;
 
   constructor(sliceName: string, init: any) {
     this[reducerSlice] = sliceName;
@@ -77,6 +80,11 @@ export class Reducer<
     actionType: string,
     handler: (state: any, actionData: any) => void
   ): Reducer<TSliceRecord, TActionsRecord> {
+    if (this[isAlive]) {
+      throw new Error(
+        'Cannot attach a reducer handler after the app has been created'
+      );
+    }
     if (this[actionHandlers].hasOwnProperty(actionType)) {
       throw new Error(
         `An action handler for ${actionType} has already been registered`
@@ -84,5 +92,9 @@ export class Reducer<
     }
     this[actionHandlers][actionType] = handler;
     return this;
+  }
+
+  public [makeReducerAlive](): void {
+    this[isAlive] = true;
   }
 }
