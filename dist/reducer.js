@@ -26,6 +26,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Reducer = exports.reducerSlice = exports.reduxReducer = void 0;
 const immer_1 = require("immer");
+immer_1.enableMapSet();
 exports.reduxReducer = Symbol();
 exports.reducerSlice = Symbol();
 const actionHandlers = Symbol();

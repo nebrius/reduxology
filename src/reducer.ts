@@ -23,8 +23,10 @@ SOFTWARE.
 */
 
 import { Reducer as ReduxReducer } from 'redux';
-import produce from 'immer';
+import produce, { enableMapSet } from 'immer';
 import { VoidKeys } from './util';
+
+enableMapSet();
 
 export const reduxReducer = Symbol();
 export const reducerSlice = Symbol();
