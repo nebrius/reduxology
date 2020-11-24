@@ -11,7 +11,5 @@ export declare class Reducer<TSliceRecord, TActionsRecord, ActionVK extends Void
     constructor(sliceName: string, init: any);
     handle<P extends ActionNVK>(action: P, handler: Handler<TSliceRecord, TActionsRecord[P]>): void;
     handle<P extends ActionVK>(action: P, handler: () => void): void;
-    removeHandler: (actionType: string) => void;
-    isHandlerRegistered: (actionType: string) => boolean;
 }
 export {};

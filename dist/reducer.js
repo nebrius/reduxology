@@ -32,12 +32,6 @@ const actionHandlers = Symbol();
 class Reducer {
     constructor(sliceName, init) {
         this[_a] = {};
-        this.removeHandler = (actionType) => {
-            delete this[actionHandlers][actionType];
-        };
-        this.isHandlerRegistered = (actionType) => {
-            return this[actionHandlers].hasOwnProperty(actionType);
-        };
         this[exports.reducerSlice] = sliceName;
         this.handle = this.handle.bind(this);
         this[exports.reduxReducer] = (state, action) => {

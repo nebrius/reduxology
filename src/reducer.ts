@@ -83,12 +83,4 @@ export class Reducer<
     this[actionHandlers][actionType] = handler;
     return this;
   }
-
-  public removeHandler = (actionType: string): void => {
-    delete this[actionHandlers][actionType];
-  };
-
-  public isHandlerRegistered = (actionType: string): boolean => {
-    return this[actionHandlers].hasOwnProperty(actionType);
-  };
 }

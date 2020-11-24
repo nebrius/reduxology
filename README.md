@@ -6,18 +6,16 @@
   - [State](#state)
   - [Reducers](#reducers)
   - [Containers](#containers)
-  - [App Initialization](#app-initialization)
   - [Action Listeners](#action-listeners)
+  - [App Creation](#app-creation)
 - [Motivation](#motivation)
 - [API](#api)
   - [createContainer(mapStateToProps, mapDispatchToProps, component) => React Redux Container](#createcontainermapstatetoprops-mapdispatchtoprops-component--react-redux-container)
-  - [createReducer(slice, initialData) => Reducer](#createreducerslice-initialdata--reducer)
+  - [createReducer(sliceName, initialData) => Reducer](#createreducerslicename-initialdata--reducer)
     - [Reducer#handle(actionType, handler) => Reducer](#reducerhandleactiontype-handler--reducer)
-    - [Reducer#removeHandler(actionType)](#reducerremovehandleractiontype)
-    - [Reducer#isHandlerRegistered(actionType) => boolean](#reducerishandlerregisteredactiontype--boolean)
-  - [createRoot(container, ...middleware) => React Component](#createrootcontainer-middleware--react-component)
-  - [dispatch(actionType, ...data)](#dispatchactiontype-data)
-  - [listen(actionType, listener)](#listenactiontype-listener)
+  - [createApp(options) => React Component](#createappoptions--react-component)
+  - [dispatch(actionType, data?)](#dispatchactiontype-data)
+  - [createListener(actionType, listener)](#createlisteneractiontype-listener)
   - [new Reduxology()](#new-reduxology)
 - [License](#license)
 
@@ -47,71 +45,74 @@ For a complete example, check out the [example in this repo](example/). For a re
 
 There aren't any actual APIs for working with actions in Reduxology or React+Redux, but they're an important concept. In traditional React, an action is an object with a `type` property that reducers use to determine how to react to an action. In many ways, actions are a lot like standard events in JavaScript with only minor differences in shape and usage.
 
-In Reduxology, actions are modified to look more like events in vanilla JavaScript. In Reduxology, actions are not an object with a `type` property, but rather a relationship between a string identifying the type of event, and arbitrary piece(s) of data representing the rest of the action. Containers and reducers both interact with actions with this same abstraction, as we'll see in the sections on reducers and containers below.
+In Reduxology, actions are modified to look more like events in vanilla JavaScript. In Reduxology, actions are not an object with a `type` property, but rather a relationship between a string identifying the type of event, and an arbitrary piece of data representing the rest of the action. Containers and reducers both interact with actions with this same abstraction, as we'll see in the sections on reducers and containers below.
 
 ### State
 
-State has been remixed in Reduxology so that it looks a lot like actions, for similar reasons. A _slice_ of state, i.e. the part of state created by a single reducer, now has an accompanying _slice type_. This slice type is directly analogous to an action type, and is used to differentiate one slice of data from another. This is the largest change from typical Redux. You can think of state in Reduxology as a key-value store.
+State has been remixed in Reduxology so that it looks a lot like actions, for similar reasons. A _slice_ of state, i.e. the part of state created by a single reducer, now has an accompanying _slice name_. This slice name is directly analogous to an action type, and is used to differentiate one slice of data from another. This is the largest change from typical Redux. You can think of state in Reduxology as a key-value store.
 
-In vanilla Redux, the location of this slice in the store is implicit in the structure of the store for data consumers, and implicit in the `combineReducers` calls for reducers. In Reduxology, the slice type is used to explicitly define the slice location in both data consumers (containers) and data creators (reducers).
+In vanilla Redux, the location of a slice in the store is implicit in the structure of the store for data consumers, and implicit in the `combineReducers` calls for reducers. In Reduxology, the slice name is used to explicitly define the slice location in both data consumers (containers) and data creators (reducers).
 
 ### Reducers
 
-To create a reducer, we use the [createReducer()](#createreducerslice-initialdata--reducer) function. We pass in two arguments: the slice type, and the data to initialize this reducer with. This function returns an object that we can register _action handlers_ with. An action handler is very similar to an event handler. An action handler listens for a specific action type, and calls the function when the action type is dispatched.
+To create a reducer, we use the [createReducer()](#createreducerslice-initialdata--reducer) function. We pass in two arguments: the slice name, and the data to initialize this reducer with. This function returns an object that we can register _action handlers_ with, which run the actual reducer code. An action handler is very similar to an event handler. An action handler listens for a specific action type, and calls the associated function when the action type is dispatched.
 
 There is are two core differences between an action handler and an event listener. Each action type can only have _one_ action handler associated with it per reducer. [handle()](#reducerhandleactiontype-handler--reducer) will throw an exception if you try to register more than one handler.
 
 This happens because of the second core difference between an action handler and an event listener: action handlers produce new state that is passed back to the runtime by returning the new state value, whereas event listeners don't produce anything. This returned value is the new state created from the old state and the action. Allowing more than one action handler would make the multiple values produced by the multiple handlers ambiguous.
 
-Each action handler uses [Immer](https://immerjs.github.io/immer/docs/introduction) under the hood, which means you don't have to create a complete copy of the state as in vanilla Redux, or use a library like Immutable.js. You can modify properties as you see fit and the rest is taken care of.
+Each action handler uses [Immer](https://immerjs.github.io/immer/docs/introduction) under the hood, which means you don't have to create a complete copy of the state like you need to in vanilla Redux. You can modify properties as you see fit and the rest is taken care of.
 
 ```JavaScript
+// reducers.ts
 import { createReducer } from 'reduxology';
+import { v4 as uuidv4 } from 'uuid';
 
 const init = {
   appointments: []
 };
 
-createReducer('APPOINTMENTS', init)
+export const appointmentsReducer = createReducer('Appointments', init)
 
-  .handle('ADD_APPOINTMENT', (state, time, duration) => {
-    state.appointments.push({ time, duration });
+  .handle('AddAppointment', (state, appointmentData) => {
+    state.appointments.push({ ...appointmentData, id: uuidv4() });
   })
 
-  .handle('CANCEL_APPOINTMENT', (state, appointmentToCancel) => {
+  .handle('CancelAppointment', (state, appointmentToCancel) => {
     for (let i = 0; i < state.appointments.length; i++) {
-      if (state.appointments[i].time === appointmentToCancel.time) {
+      if (state.appointments[i].id === appointmentToCancel.id) {
         state.appointments.splice(i, 1);
       }
     }
   });
 ```
+The returned value from the `createReducer` is used to register the reducer with Reduxology, as we'll see later.
 
-Note: you do not need to register any handlers to create the reducer. The reducer will exist and return slice data in the `init` value passed in. This is useful if you want to create a reducer to expose initialization data through Redux that will not change throughout the lifetime of the application
+_Note:_ you do not need to register any handlers to create the reducer. The reducer will exist and return slice data in the `init` value passed in. This is useful if you want to create a reducer to expose initialization data through Redux that will not change throughout the lifetime of the application
 
 ### Containers
 
 Containers look quite similar to vanilla React Redux containers, except that there is a single function call to [createContainer()](#createcontainermapstatetoprops-mapdispatchtoprops-component--react-redux-container) instead of a double call to `connect()` and the function it returns. The first argument is mapStateToProps, and the second is mapDispatchToProps, same as in React Redux.
 
-A key difference between React Redux and Reduxology is the argument passed to the mapDispatchToProps function. In traditional React Redux this argument is a plain ole JavaScript object containing the entire state, typically called `state`. In Reduxology, this argument is a function, typically called `getSlice`. The container calls `getSlice()` with a slice type, and it returns that piece of state. On first run, this value will be the same as the initialization value passed to [createReducer()](#createreducerslice-initialdata--reducer).
+A key difference between React Redux and Reduxology is the argument passed to the mapDispatchToProps function. In traditional React Redux this argument is a plain ole JavaScript object containing the entire state, typically called `state`. In Reduxology, this argument is a function, typically called `getSlice`. Your container can then call `getSlice()` with a slice name, and it returns that piece of state. At first, this value will be the same as the initialization value passed to [createReducer()](#createreducerslice-initialdata--reducer).
 
 ```JavaScript
+// containers.ts
 import { createContainer } from 'reduxology';
 import { AppComponent } from './components';
 
 export const AppContainer = createContainer(
   (getSlice) => {
-    return {
-      appointments: getSlice('APPOINTMENTS').appointments
-    };
+    const { appointments } = getSlice('Appointments');
+    return { appointments };
   },
   (dispatch) => {
     return {
       addAppointment(time, duration) {
-        dispatch('ADD_APPOINTMENT', time, duration);
+        dispatch('AddAppointment', { time, duration });
       },
       cancelAppointment(appointment) {
-        dispatch('CANCEL_APPOINTMENT', appointment);
+        dispatch('CancelAppointment', { appointment });
       }
     };
   },
@@ -119,64 +120,75 @@ export const AppContainer = createContainer(
 );
 ```
 
-### App Initialization
-
-Reduxology provides a helper function called [createRoot()](#createrootcontainer--react-component) that creates a `<Provider>` React element for you, and automatically wires the store into it.
-
-```JavaScript
-import { render } from 'react-dom';
-import { createRoot } from 'reduxology';
-import { AppContainer } from './containers';
-
-import './reducers';
-
-render(
-  createRoot(AppContainer),
-  document.getElementById('root')
-);
-```
 ### Action Listeners
 
-Middleware is a large topic for Redux. Reduxology supports using existing Redux middleware via the [createRoot()](#createrootcontainer--react-component) function. This is useful if you want to pass in off-the-shelf Redux middleware, such as [redux-thunk](https://github.com/reduxjs/redux-thunk) or [redux-saga](https://github.com/redux-saga/redux-saga).
+Middleware is a large topic for Redux. Reduxology supports using existing Redux middleware via the [createApp()](#createrootcontainer--react-component) function. This is useful if you want to pass in off-the-shelf Redux middleware, such as [redux-thunk](https://github.com/reduxjs/redux-thunk) or [redux-saga](https://github.com/redux-saga/redux-saga).
 
-If you want to write your own middleware, Reduxology offers a simplified interface for addressing some of the most common use cases that middleware provides for. This interface is called an _action listener_. An action listener listens for, well, actions. An action listener is virtually indistinguishable from a general JavaScript event listener in practice.
+If you want to write your own middleware, Reduxology offers a simplified interface for addressing what I believe is the most common use case that middleware provides for: API calls. This interface is called an _action listener_. An action listener listens for, well, actions. An action listener is virtually indistinguishable from a general JavaScript event listener in practice, and is invoked whenever an action is dispatched.
 
-For example, if you wanted to make an API call that fetches an item after a user clicks a button that dispatches a `REQUEST_ITEM` action, you could write something like this:
+For example, if you wanted to make an API call that fetches an item after a user clicks a button that dispatches a `RequestItem` action, you could write something like this:
 
 ```JavaScript
-import { listen, dispatch } from 'reduxology';
+// listeners.ts
+import { createListener, dispatch } from 'reduxology';
 
-listen('REQUEST_ITEM', async (itemId) => {
+export const requestItemListener = createListener('RequestItem', async (id) => {
   try {
-    const response = await fetch(`/api/items/${itemId}/`);
-    const itemData = await response.json();
-    dispatch('ITEM_FETCHED', itemId, itemData);
+    const response = await fetch(`/api/items/${id}/`);
+    const data = await response.json();
+    dispatch('ItemFetched', {id, data});
   } catch (e) {
-    dispatch('ITEM_FETCH_FAILED', itemId);
+    dispatch('ItemFetchFailed', id);
   }
 });
 ```
 
-Unlike traditional middleware, this function does _not_ provide a mechanism for modifying state. This was done intentionally to keep the API simple and address the most common use case for middleware. I will continue to think on how to make this method more powerful in the future.
+Unlike traditional middleware, this function does _not_ provide a mechanism for modifying state. This was done intentionally to keep the API simple and address the most common use case for middleware. This also makes action listeners a safe place to perform side effects without affecting how we reason about state changes.
 
 Technical note: Although this action listener is an `async` function, action listeners are _not_ `await`ed by Reduxology. This means that the action dispatch is not blocked by the listener, and will continue being dispatched at the first `await` in the function.
 
+### App Creation
+
+Reduxology provides a function called [createApp()](#createrootcontainer--react-component) that ties everything together. This function returns a functioning React element you can pass to React's `render` method. Under the hood, it creates a `<Provider>` React-Redux element for you and automatically wires the store, reducers, and action listeners into it.
+
+```JavaScript
+// index.ts
+import { render } from 'react-dom';
+import { createApp } from 'reduxology';
+import { AppContainer } from './containers';
+import { appointmentsReducer } from './reducers';
+import { requestItemListener } from './listeners';
+
+import './reducers';
+
+const app = createApp({
+  container: AppContainer,
+  reducers: [appointmentsReducer]
+  listeners: [requestItemListener]
+});
+
+render(
+  app,
+  document.getElementById('root')
+);
+```
+
 ## Motivation
 
-I've written many React apps, most small, some large. I've also taught React to a number of folks. Many developers, especially junior developers, get tripped up on both understanding what all the pieces do, and how to connect them together. I've been thinking hard on this problem for a while, and I think I've figured out where the confusion comes from.
+I've written many React apps, some small, some large. I've also taught React to a number of folks. Many developers, especially junior developers, get tripped up on both understanding what all the pieces do, and how to connect them together. I've been thinking hard on this problem for a while, and I think I've figured out where the confusion comes from.
 
 When we talk about React+Redux and separation of concerns, we tend to talk about the _data flow_ separation between parts of a React+Redux app, specifically how data flows _one way_. And React+Redux is _very_ good at constraining data flow such that it's easy to test and reason about.
 
-But what about _data dependency_, e.g. how are multiple pieces of the app dependant on the shape of a piece of data, and how is that shape defined? This is where vanilla Redux stumbles, in my opinion. To illustrate this, let's discuss the three core concepts in React Redux: reducers, containers, and actions.
+But what about _data dependency_, e.g. how are multiple pieces of the app dependant on the shape of a piece of data, and how is that shape defined? This is where vanilla Redux stumbles, in my opinion. To illustrate this, let's discuss the three core concepts in React+Redux: reducers, containers, and actions.
 
 ### Actions <!-- omit in toc -->
 
-Let's start by talking about actions. In a typical Redux application, we use _action creators_ to, well, create an action. These are effectively helper functions that take in specific parameters and create an action. An example action creator for the ADD_APPOINTMENT action illustrated above would look like:
+Let's start by talking about actions. In a typical Redux application, we use _action creators_ to, well, create an action. These are effectively helper functions that take in specific parameters and create an action. An example action creator for the `AddAppointment` action illustrated above would look like:
 
 ```JavaScript
 function createAddAppointmentAction(time, duration) {
   return {
-    type: 'ADD_APPOINTMENT',
+    type: 'AddAppointment',
     appointment: {
       time,
       duration
@@ -187,25 +199,31 @@ function createAddAppointmentAction(time, duration) {
 
 These are a nice encapsulation that makes it easier to create actions, which happens in a container. In addition, the container that's creating the action doesn't need to know the shape of the action object, a nice encapsulation!
 
-But what about _consuming_ these actions, which happens in reducers? There is no equivalent helper to consume an action in a reducer. This undermines the value of the abstraction created by the action creator because there is still a _data dependency_ on the output of an action creator inside the reducer.
+But what about _consuming_ these actions, which happens in reducers? There is no equivalent helper to consume an action in a reducer. This undermines the value of the abstraction created by the action creator because there is still a _data dependency_ on the output of an action creator inside the reducer. The shape of this data is only abstracted in half our code!
 
 ### Reducers and Containers <!-- omit in toc -->
 
 Next, let's talk about reducers and containers. At a high level, reducers and containers are mirror images of each other. A reducer consumes an action and produces state, while a container consumes state and produces actions. This is a nice level of symmetry in the design.
 
-Reducers take in the application's current state plus an action, and produce a new state. One of the nice ways reducers are encapsulated is that each reducer is only responsible for a _subsection_ of state called a _slice_, and don't need to know anything about the state in the rest of the store. This is really great, and one of the things I love most about reducers. Below is an example:
+Reducers take in the application's current state plus an action, and produce a new state. One of the nice ways reducers are encapsulated is that each reducer is only responsible for a _subsection_ of state, which I call a _slice_. Reducers don't need to know anything about the state in the rest of the store. This is really great, and one of the things I love most about reducers. Below is an example:
 
 ```JavaScript
+import { v4 as uuidv4 } from 'uuid';
+
 const appointmentsReducer = (state, action) => {
   switch (action.type) {
-    case 'ADD_APPOINTMENT':
+    case 'AddAppointment':
+      const newAppointment = {
+        ...action.appointment,
+        id: uuidv4()
+      }
       return {
         ...state,
-        appointments: [ ...state.appointments, action.appointment ]
+        appointments: [ ...state.appointments, newAppointment ]
       };
-    case 'CANCEL_APPOINTMENT':
+    case 'CancelAppointment':
       for (let i = 0; i < state.appointments.length; i++) {
-        if (state.appointments[i].time === appointmentToCancel.time) {
+        if (state.appointments[i].id === appointmentToCancel.id) {
           state = {
             ...state,
             appointments: [ ...appointments ]
@@ -256,15 +274,17 @@ Worse, the way this location is defined cannot be reused between reducers and co
 
 ### Conclusion <!-- omit in toc -->
 
-After reflecting on these issues, I realized that we have an issue with the _consistency_ of our abstractions. The way that actions are created vs consumed is different, with the container side being well abstracted and the reducer side not. The way that state is created vs consumed is the same but flipped, with the reducer side being well abstracted and the container side not. This imbalance diminishes the usefulness of these abstractions, and in my experience has led to confusion among developers, especially junior developers. This partial abstraction makes a lot of the code look like magic, and can lead to not understanding why some things require manual coding and others don't.
+After reflecting on these issues, I realized that we have an issue with the _consistency_ of our abstractions in vanilla React+Redux. The way that actions are created vs consumed is different, with the container side being well abstracted and the reducer side not. The way that state is created vs consumed is the same but flipped, with the reducer side being well abstracted and the container side not. This imbalance diminishes the usefulness of these abstractions, and in my experience has led to confusion among developers, especially junior developers. This partial abstraction makes a lot of the code look like magic, and can lead to not understanding why some things require manual coding and others don't.
 
 Thinking through the architecture of Redux more, there is another bit of implicit symmetry: state and actions are both data that flows through the system. They do represent very different types of data, so these are not things that should be combined. But, it is an observation that has influenced the API design of Reduxology.
 
 In addition to Redux' somewhat muddy view of data dependencies vs data flow, there's also just a lot of _stuff_ you have to do to connect all the pieces together. When we look at a dependency graph of a codebase based on `import` statements, the unidirectional flow of data tends to be obscured by all the scaffolding around it.
 
-Reduxology aims to address all of these issues to varying degrees, while keeping the aspects of React+Redux that makes them such an amazing way to create UIs.
+Reduxology aims to address all of these issues to varying degrees, while keeping the benefits of React+Redux that makes them such an amazing way to create UIs.
 
 ## API
+
+_Note:_ Any property or argument with a "?" after it is optional
 
 ### createContainer(mapStateToProps, mapDispatchToProps, component) => React Redux Container
 
@@ -282,7 +302,7 @@ Creates a container, in the React Redux sense, for use as a React component.
   </thead>
   <tbody>
     <tr>
-      <td>mapStateToProps</td>
+      <td>mapStateToProps(getSlice, ownProps?)</td>
       <td>Function</td>
       <td>A mapStateToProps function, analogous to the first argument passed to <code>connect()</code></a> in React Redux. This function takes in the current state, and returns the props for the React component passed to <code>createContainer</code></td>
     </tr>
@@ -300,7 +320,7 @@ Creates a container, in the React Redux sense, for use as a React component.
           </thead>
           <tbody>
             <tr>
-              <td>getSlice</td>
+              <td>getSlice(sliceName)</td>
               <td>Function</td>
               <td>Gets a state slice from the global state object</td>
             </tr>
@@ -327,7 +347,7 @@ Creates a container, in the React Redux sense, for use as a React component.
                 <br /><em>Return Value:</em>
                 <div>The requested state slice value.</div>
                 <br /><em>Throws:</em>
-                <div>An exception is thrown if an invalid state slice type is passed in.</div>
+                <div>An exception is thrown if an invalid state slice name is passed in.</div>
               </td>
             </tr>
             <tr>
@@ -338,11 +358,11 @@ Creates a container, in the React Redux sense, for use as a React component.
           </tbody>
         </table>
         <br /><em>Return Value:</em>
-        <div>This function should return the state-derived props to be passed to the React component this container is wrapping.</div>
+        <div>The state-derived props to be passed to the React component this container is wrapping.</div>
       </td>
     </tr>
     <tr>
-      <td>mapDispatchToProps</td>
+      <td>mapDispatchToProps(dispatch, ownProps?)</td>
       <td>Function</td>
       <td>A mapDispatchToProps function, analogous to the second argument passed to <code>connect()</code></a> in React Redux. The dispatch argument passed to this function is different from the dispatch argument in React Redux mapDispatchToProps.</td>
     </tr>
@@ -360,7 +380,7 @@ Creates a container, in the React Redux sense, for use as a React component.
           </thead>
           <tbody>
             <tr>
-              <td>dispatch</td>
+              <td>dispatch(type, data?)</td>
               <td>Function</td>
               <td>See the global <a href="#dispatchactiontype-data">dispatch function</a> for a description of how this argument is used.</a></td>
             </tr>
@@ -372,7 +392,7 @@ Creates a container, in the React Redux sense, for use as a React component.
           </tbody>
         </table>
         <br /><em>Return Value:</em>
-        <div>This function should return the dispatch-derived props to be passed to the React component this container is wrapping.</div>
+        <div>Dispatch-derived props to be passed to the React component this container is wrapping.</div>
       </td>
     </tr>
     <tr>
@@ -387,9 +407,9 @@ Creates a container, in the React Redux sense, for use as a React component.
 
 A React Redux container, which can be used directly as a React component. This is the same value returned from React Redux' `connect()()` functions. [See the React Redux documentation for more information](https://react-redux.js.org/api/connect#connect-returns).
 
-### createReducer(slice, initialData) => Reducer
+### createReducer(sliceName, initialData) => Reducer
 
-Creates and connects a reducer. Calling this function handles all of the plumbing for reducers. Meaning, once you call this function, you do not need to call anything else to connect or initialize this reducer.
+Creates a reducer.
 
 **_Arguments:_**
 
@@ -403,9 +423,9 @@ Creates and connects a reducer. Calling this function handles all of the plumbin
   </thead>
   <tbody>
     <tr>
-      <td>slice</td>
+      <td>sliceName</td>
       <td>String</td>
-      <td>The slide ID that this reducer will reduce data to</td>
+      <td>The slide name that this reducer will reduce data to</td>
     </tr>
     <tr>
       <td>initialData</td>
@@ -440,7 +460,7 @@ Adds an action handler to the reducer. Note: there can only be one handler regis
       <td>The user-defined action type to handle</td>
     </tr>
     <tr>
-      <td>handler</td>
+      <td>handler(state, action?)</td>
       <td>Function</td>
       <td>The handler to invoke when an action specified by <code>actionType</code> is dispatched.</td>
     </tr>
@@ -463,9 +483,9 @@ Adds an action handler to the reducer. Note: there can only be one handler regis
               <td>The current state slice. This value is wrapped in a call to Immer's <code>produce()</code> function, and can be mutated safely.</td>
             </tr>
             <tr>
-              <td>...data</td>
+              <td>action?</td>
               <td>any</td>
-              <td>Each action can dispatch zero to many arguments, and are passed in after the <code>state</code> argument in the order they were passed to the <a href="#dispatchactiontype-data">dispatch function</a>.</td>
+              <td>The action data that was passed to the <a href="#dispatchactiontype-data">dispatch function</a>.</td>
             </tr>
           </tbody>
         </table>
@@ -484,70 +504,20 @@ Returns the reducer that `handle()` was called on, so that you can chain multipl
 
 This function will throw an exception if you try to register a handler to an action type that already has a handler registered to it.
 
-#### Reducer#removeHandler(actionType)
-
-Removes the action handler for the given action type, if it exists. If there is no handler registered for the given action type, this function completes silently and does not throw an exception.
-
-**_Arguments:_**
-
-<table>
-  <thead>
-    <tr>
-      <th>Argument</th>
-      <th>Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>actionType</td>
-      <td>string</td>
-      <td>The user-defined action type to remove a handler from</td>
-    </tr>
-  </tbody>
-</table>
-
-**_Return value:_**
-
-None.
-
-#### Reducer#isHandlerRegistered(actionType) => boolean
-
-Checks if there is a handler registered for a given action type.
-
-**_Arguments:_**
-
-<table>
-  <thead>
-    <tr>
-      <th>Argument</th>
-      <th>Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>actionType</td>
-      <td>string</td>
-      <td>The user-defined action type to check if a handler exists for</td>
-    </tr>
-  </tbody>
-</table>
-
 **_Return value:_**
 
 A boolean value indicating whether or not a handler has been registered for the given action type.
 
-### createRoot(container, ...middleware) => React Component
+### createApp(options) => React Component
 
-Creates a root-level React component to be passed to React's `render()` method. This function creates the store for you and attaches it to a React Redux `<Provider>` component, and attaches the supplied container as the one and only child to it.
+Creates a root-level React component to be passed to React's `render()` method. This function creates the store for you and attaches it to a React Redux `<Provider>` component, attaches the supplied container as the one and only child to it, and wires in the supplied reducers and listeners.
 
-**_Arguments:_**
+**_Options:_**
 
 <table>
   <thead>
     <tr>
-      <th>Argument</th>
+      <th>Property</th>
       <th>Type</th>
       <th>Description</th>
     </tr>
@@ -559,8 +529,18 @@ Creates a root-level React component to be passed to React's `render()` method. 
       <td>The container to attach, as returned from <a href="#createcontainermapstatetoprops-mapdispatchtoprops-component--react-redux-container">createContainer()</a></td>
     </tr>
     <tr>
-      <td>...middleware</td>
-      <td>Redux Middleware</td>
+      <td>reducers?</td>
+      <td>Array of Reducers</td>
+      <td>An array of reducers to wire up, created via <a href="">createReducer()</a></td>
+    </tr>
+    <tr>
+      <td>listeners?</td>
+      <td>Array of Listeners</td>
+      <td>An array of listeners to wire up, created via <a href="">createListener()</a></td>
+    </tr>
+    <tr>
+      <td>middleware?</td>
+      <td>Array of Redux Middleware</td>
       <td>Any additional Redux middleware you'd like to attach to the Redux instance, e.g. <a href="https://github.com/reduxjs/redux-thunk">redux-thunk</a> or <a href="https://github.com/redux-saga/redux-saga">redux-saga</a>. These middleware can be passed in as-is without modification. They are passed to the Redux `applyMiddleware` method directly, so there's no need to call `applyMiddleware` yourself.<br /><br />Note: the value for store, next, and action used by the middleware are the raw under-the-hood variants, not the Reduxology variants. I soon hope to implement some helper methods you can use to convert actions and the store to the Reduxology variants.</td>
     </tr>
   </tbody>
@@ -570,11 +550,11 @@ Creates a root-level React component to be passed to React's `render()` method. 
 
 A React component containing the `<Provider>` component and supplied container.
 
-### dispatch(actionType, ...data)
+### dispatch(actionType, data?)
 
-Dispatches an action in a global context.
+Dispatches an action in a global context. This function is useful if you have actions that are not generated by the UI, such as receiving a Web Socket message from a server.
 
-Note: this function should not be used in the place of the `dispatch` parameter passed to a container's mapDispatchToProps. This function is useful if you have actions that are not generated by the UI, such as receiving a Web Socket message from a server.
+_Note:_ this function should not be used in the place of the `dispatch` parameter passed to a container's mapDispatchToProps.
 
 **_Arguments:_**
 
@@ -593,9 +573,9 @@ Note: this function should not be used in the place of the `dispatch` parameter 
       <td>The type of action to dispatch</td>
     </tr>
     <tr>
-      <td>...data</td>
+      <td>data?</td>
       <td>any</td>
-      <td>You can dispatch any number of arguments of any type (including no arguments), and they are passed in order to any registered action handlers registered to reducers.</td>
+      <td>Data associated with the action</td>
     </tr>
   </tbody>
 </table>
@@ -604,9 +584,9 @@ Note: this function should not be used in the place of the `dispatch` parameter 
 
 None.
 
-### listen(actionType, listener)
+### createListener(actionType, listener)
 
-Listens for actions, without modifying them. This method is useful for connecting API calls to actions.
+Creates a listener for actions, without modifying them. This method is useful for connecting API calls to actions.
 
 **_Arguments:_**
 
@@ -625,7 +605,7 @@ Listens for actions, without modifying them. This method is useful for connectin
       <td>The type of action to listen for</td>
     </tr>
     <tr>
-      <td>listener</td>
+      <td>listener(data?)</td>
       <td>any</td>
       <td>A listener that will receive the action data.</td>
     </tr>
@@ -643,9 +623,9 @@ Listens for actions, without modifying them. This method is useful for connectin
           </thead>
           <tbody>
             <tr>
-              <td>...data</td>
+              <td>data?</td>
               <td>any</td>
-              <td>Each action can dispatch zero to many arguments, and are passed to the listener in the order they were passed to the <a href="#dispatchactiontype-data">dispatch function</a>.</td>
+              <td>Data associated with the action, as passed to the <a href="#dispatchactiontype-data">dispatch function</a>.</td>
             </tr>
           </tbody>
         </table>
@@ -663,8 +643,6 @@ None.
 ### new Reduxology()
 
 Creates a new Reduxology instance which will have its own store associated with it. Each of the previous methods described in the API section are present on the Reduxology instance. All of the previous methods are, in fact, part of a Reduxology instance that is created for you automatically behind the scenes.
-
-Someday I hope to use this class in TypeScript land to add strongly-type actions and state via the same mechanism used for the [Strict Event Emitters Types](https://github.com/bterlson/strict-event-emitter-types) package.
 
 ## License
 
