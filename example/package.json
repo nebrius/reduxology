@@ -7,10 +7,9 @@
     "build": "webpack",
     "postbuild": "cp ./src/index.html ./dist",
     "build-js": "tsc -p tsconfig.js.json; prettier --write src-js/**/*.js src-js/**/*.jsx",
-    "start": "http-server dist/"
+    "start": "serve dist/"
   },
   "dependencies": {
-    "http-server": "^0.12.1",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "reduxology": "^1.0.0"
@@ -18,6 +17,7 @@
   "devDependencies": {
     "@types/react": "^16.14.2",
     "@types/react-dom": "^16.9.10",
+    "serve": "^11.3.2",
     "ts-loader": "^8.0.11",
     "typescript": "^4.1.2",
     "webpack": "^5.6.0",
