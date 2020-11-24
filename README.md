@@ -8,6 +8,7 @@
   - [Containers](#containers)
   - [Action Listeners](#action-listeners)
   - [App Creation](#app-creation)
+- [Strict Typing with TypeScript](#strict-typing-with-typescript)
 - [Motivation](#motivation)
 - [API](#api)
   - [createContainer(mapStateToProps, mapDispatchToProps, component) => React Redux Container](#createcontainermapstatetoprops-mapdispatchtoprops-component--react-redux-container)
@@ -172,6 +173,86 @@ render(
   document.getElementById('root')
 );
 ```
+
+## Strict Typing with TypeScript
+
+Reduxology provides a way to strictly type all of your actions and state slices throughout the app. All of the functions we saw in the above examples are actually methods on a class. This class is [generic](https://www.typescriptlang.org/docs/handbook/generics.html), and takes two generic parameters to define your state and actions, respectively.
+
+I recommend you create a file called `src/reduxology.ts` that is imported by all your files that use Reduxology. Here is the example file's `reduxology.ts` file:
+
+```TypeScript
+import { Reduxology } from 'reduxology';
+import { Actions, State } from './types';
+
+const reduxology = new Reduxology<State, Actions>();
+
+export const createContainer = reduxology.createContainer;
+export const createReducer = reduxology.createReducer;
+export const createListener = reduxology.createListener;
+export const createApp = reduxology.createApp;
+export const dispatch = reduxology.dispatch;
+```
+
+_Note:_ All of the methods on the `Reduxology` class are properly bound, so you don't need to worry about `this`.
+
+The `types.ts` file is implemented as:
+
+```TypeScript
+export interface Actions {
+  AddAppointment: {
+    time: number;
+    duration: number;
+  };
+  CancelAppointment: Appointment;
+}
+
+export interface State {
+  Appointments: AppointmentState;
+}
+
+export interface Appointment {
+  id: number;
+  time: number;
+  duration: number;
+}
+
+export interface AppointmentState {
+  appointments: Appointment[];
+}
+```
+
+The `State` generic parameter is set to an `interface`. Each property in the interface is the slice name, and the type of that property is the shape of the slice data. Similarly, the `Actions` generic parameter is set to an `interface` as well. Each property in the interface is the action type, and the type of that property is the data associated with that action type.
+
+With these generics in place, you now get strict type checking in your `createReducer`, `reducer.handle`, `createActionListener`, and `createContainer` functions. Any attempt to access an invalid slice name or action type will throw an error. Additionally, the data associated with those calls is strictly typed too. To see this in action, let's consider some examples.
+
+This compiles properly:
+
+```TypeScript
+const addAppointmentListener = createListener(
+  'AddAppointment',
+  ({ time, duration }) => console.log(time, duration)
+);
+```
+
+This fails to compile because `Incorrect` isn't a known action.
+
+```TypeScript
+const addAppointmentListener = createListener(
+  'Incorrect',
+  ({ time, duration }) => console.log(time, duration)
+);
+```
+
+This also fails to compile, because `incorrect` isn't part of the `AddAppointment` action:
+
+```TypeScript
+const addAppointmentListener = createListener(
+  'AddAppointment',
+  ({ incorrect }) => console.log(incorrect)
+);
+```
+
+The implementation for this type checking is based on Brian Terlsen's fantastic [strict-event-emitter-types](https://github.com/bterlson/strict-event-emitter-types) library.
 
 ## Motivation
 
