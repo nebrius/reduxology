@@ -26,7 +26,8 @@ import { createListener } from './reduxology';
 
 const addAppointmentListener = createListener(
   'AddAppointment',
-  ({ time, duration }) => {
+  ({ time, duration }, getSlice) => {
+    console.log('Previous appointments:', getSlice('Appointments'));
     console.log(
       `Add appointment action dispatched with time ${time} and duration ${duration}`
     );

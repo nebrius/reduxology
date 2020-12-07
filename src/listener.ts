@@ -22,15 +22,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+import { GetSlice } from './state';
+
 export const listenerAction = Symbol();
 export const listenerListener = Symbol();
 
-export type ListenerFunc<T> = (data: T) => void;
+export type ListenerFunc<T, TStateRecord> = (
+  data: T,
+  getSlice: GetSlice<TStateRecord>
+) => void;
 
-export class Listener {
+export class Listener<TStateRecord> {
   public [listenerAction]: string;
-  public [listenerListener]: ListenerFunc<unknown>;
-  constructor(actionName: string, newListener: ListenerFunc<unknown>) {
+  public [listenerListener]: ListenerFunc<unknown, TStateRecord>;
+  constructor(
+    actionName: string,
+    newListener: ListenerFunc<unknown, TStateRecord>
+  ) {
     this[listenerAction] = actionName;
     this[listenerListener] = newListener;
   }

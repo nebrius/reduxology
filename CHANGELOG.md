@@ -1,3 +1,7 @@
+## 2.1.0 (2020-12-06)
+
+- Updated action listeners so they are passed `getSlice` as the second argument, just like containers
+
 ## 2.0.0 (2020-11-23)
 
 This is a major rewrite, with some fairly significant changes to the API.

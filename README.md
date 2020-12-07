@@ -40,7 +40,7 @@ If you're a TypeScript user, you don't need to do anything else. This module is 
 
 From a conceptual perspective, using this library is effectively same as using React+Redux, just with a different syntax. So we'll go through the major concepts and describe how they work here.
 
-For a complete example, check out the [example in this repo](example/). For a real-world application, check out the client of my [Home Lights](https://github.com/rvl-system/home-lights) project, and the renderer part of my Electron.js application [Contact Scheduler](https://github.com/nebrius/contact-scheduler/tree/master/renderer).
+For a complete example, check out the [example in this repo](example/). For a real-world application, check out the client of my [Home Lights](https://github.com/rvl-system/home-lights) project.
 
 ### Actions
 
@@ -145,6 +145,8 @@ export const requestItemListener = createListener('RequestItem', async (id) => {
 ```
 
 Unlike traditional middleware, this function does _not_ provide a mechanism for modifying state. This was done intentionally to keep the API simple and address the most common use case for middleware. This also makes action listeners a safe place to perform side effects without affecting how we reason about state changes.
+
+In some cases, you may need access to other parts of state in your listener in addition to the action data. Each listener is passed `getSlice` as the second argument, like you get in containers. This allows you to pull in any state you need.
 
 Technical note: Although this action listener is an `async` function, action listeners are _not_ `await`ed by Reduxology. This means that the action dispatch is not blocked by the listener, and will continue being dispatched at the first `await` in the function.
 
@@ -686,7 +688,7 @@ Creates a listener for actions, without modifying them. This method is useful fo
       <td>The type of action to listen for</td>
     </tr>
     <tr>
-      <td>listener(data?)</td>
+      <td>listener(data, getSlice)</td>
       <td>any</td>
       <td>A listener that will receive the action data.</td>
     </tr>
@@ -704,9 +706,14 @@ Creates a listener for actions, without modifying them. This method is useful fo
           </thead>
           <tbody>
             <tr>
-              <td>data?</td>
-              <td>any</td>
+              <td>data</td>
+              <td>any or undefined</td>
               <td>Data associated with the action, as passed to the <a href="#dispatchactiontype-data">dispatch function</a>.</td>
+            </tr>
+            <tr>
+              <td>getSlice(sliceName)</td>
+              <td>Function</td>
+              <td>Gets a state slice from the global state object</td>
             </tr>
           </tbody>
         </table>

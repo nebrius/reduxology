@@ -67,7 +67,10 @@ export class Reduxology<
     DispatchVK
   >
 > {
-  private [actionListeners]: Record<any, ListenerFunc<any>[]> = {};
+  private [actionListeners]: Record<
+    any,
+    ListenerFunc<any, TStateRecord>[]
+  > = {};
   private [store]: Store;
   private [isAlive] = false;
 
@@ -109,16 +112,16 @@ export class Reduxology<
 
   public createListener<P extends ActionNVK>(
     action: P,
-    listener: ListenerFunc<TActionsRecord[P]>
-  ): Listener;
+    listener: ListenerFunc<TActionsRecord[P], TStateRecord>
+  ): Listener<TStateRecord>;
   public createListener<P extends ActionVK>(
     action: P,
     listener: () => void
-  ): Listener;
+  ): Listener<TStateRecord>;
   public createListener(
     action: any,
-    listener: ListenerFunc<any> | (() => void)
-  ): Listener {
+    listener: ListenerFunc<any, TStateRecord> | (() => void)
+  ): Listener<TStateRecord> {
     if (this[isAlive]) {
       throw new Error(
         'Cannot create a listener after the app has been created'
@@ -134,7 +137,7 @@ export class Reduxology<
     middleware = []
   }: {
     container: any;
-    listeners?: Listener[];
+    listeners?: Listener<TStateRecord>[];
     reducers?: Reducer<unknown, TActionsRecord>[];
     middleware?: Middleware[];
   }): JSX.Element => {
@@ -163,7 +166,10 @@ export class Reduxology<
     middleware.unshift(() => (next) => (action) => {
       if (this[actionListeners][action.type]) {
         for (const listener of this[actionListeners][action.type]) {
-          listener(action.data);
+          listener(
+            action.data,
+            new State<TStateRecord>(this[store].getState()).getSlice
+          );
         }
       }
       return next(action);

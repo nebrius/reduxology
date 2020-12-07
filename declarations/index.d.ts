@@ -15,11 +15,11 @@ export declare class Reduxology<TStateRecord, TActionsRecord, ActionVK extends V
     constructor();
     createContainer: (mapStateToProps: (getSlice: GetSlice<TStateRecord>, ownProps?: any) => any, mapDispatchToProps: (dispatch: Reduxology<TStateRecord, TActionsRecord>['dispatch'], ownProps?: any) => any, component: any) => ConnectedComponent<any, Pick<unknown, never>>;
     createReducer: <K extends keyof TStateRecord>(slice: K, initialData: TStateRecord[K]) => Reducer<TStateRecord[K], TActionsRecord, keyof TActionsRecord extends (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) ? (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) & keyof TActionsRecord : never, Exclude<keyof TActionsRecord, keyof TActionsRecord extends (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) ? (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) & keyof TActionsRecord : never>>;
-    createListener<P extends ActionNVK>(action: P, listener: ListenerFunc<TActionsRecord[P]>): Listener;
-    createListener<P extends ActionVK>(action: P, listener: () => void): Listener;
+    createListener<P extends ActionNVK>(action: P, listener: ListenerFunc<TActionsRecord[P], TStateRecord>): Listener<TStateRecord>;
+    createListener<P extends ActionVK>(action: P, listener: () => void): Listener<TStateRecord>;
     createApp: ({ container: Container, reducers: appReducers, listeners: appListeners, middleware }: {
         container: any;
-        listeners?: Listener[] | undefined;
+        listeners?: Listener<TStateRecord>[] | undefined;
         reducers?: Reducer<unknown, TActionsRecord, keyof TActionsRecord extends (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) ? (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) & keyof TActionsRecord : never, Exclude<keyof TActionsRecord, keyof TActionsRecord extends (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) ? (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) & keyof TActionsRecord : never>>[] | undefined;
         middleware?: Middleware<{}, any, import("redux").Dispatch<import("redux").AnyAction>>[] | undefined;
     }) => JSX.Element;
@@ -32,12 +32,12 @@ export declare const createContainer: (mapStateToProps: (getSlice: GetSlice<unkn
 }, ownProps?: any) => any, component: any) => ConnectedComponent<any, Pick<unknown, never>>;
 export declare const createReducer: <K extends never>(slice: K, initialData: unknown) => Reducer<unknown, unknown, never, never>;
 export declare const createListener: {
-    <P extends never>(action: P, listener: ListenerFunc<unknown>): Listener;
-    <P_1 extends never>(action: P_1, listener: () => void): Listener;
+    <P extends never>(action: P, listener: ListenerFunc<unknown, unknown>): Listener<unknown>;
+    <P_1 extends never>(action: P_1, listener: () => void): Listener<unknown>;
 };
 export declare const createApp: ({ container: Container, reducers: appReducers, listeners: appListeners, middleware }: {
     container: any;
-    listeners?: Listener[] | undefined;
+    listeners?: Listener<unknown>[] | undefined;
     reducers?: Reducer<unknown, unknown, never, never>[] | undefined;
     middleware?: Middleware<{}, any, import("redux").Dispatch<import("redux").AnyAction>>[] | undefined;
 }) => JSX.Element;
