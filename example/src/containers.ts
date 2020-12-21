@@ -26,7 +26,10 @@ import { createContainer } from './reduxology';
 import {
   AppComponent,
   AppComponentProps,
-  AppComponentDispatch
+  AppComponentDispatch,
+  AppointmentComponent,
+  AppointmentComponentProps,
+  AppointmentComponentDispatch
 } from './components';
 
 export const AppContainer = createContainer(
@@ -40,11 +43,23 @@ export const AppContainer = createContainer(
     return {
       addAppointment(time, duration) {
         dispatch('AddAppointment', { time, duration });
-      },
-      cancelAppointment(appointment) {
-        dispatch('CancelAppointment', appointment);
       }
     };
   },
   AppComponent
+);
+
+export const AppointmentComponentContainer = createContainer(
+  (
+    getSlice,
+    ownProps: AppointmentComponentProps
+  ): AppointmentComponentProps => ({
+    appointment: ownProps.appointment
+  }),
+  (dispatch): AppointmentComponentDispatch => ({
+    cancelAppointment(appointment) {
+      dispatch('CancelAppointment', appointment);
+    }
+  }),
+  AppointmentComponent
 );

@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 import * as React from 'react';
+import { AppointmentComponentContainer } from './containers';
 import { Appointment } from './types';
 
 export interface AppComponentProps {
@@ -31,7 +32,6 @@ export interface AppComponentProps {
 
 export interface AppComponentDispatch {
   addAppointment: (time: number, duration: number) => void;
-  cancelAppointment: (appointment: Appointment) => void;
 }
 
 export class AppComponent extends React.Component<
@@ -41,10 +41,9 @@ export class AppComponent extends React.Component<
     return (
       <div>
         {this.props.appointments.map((appointment) => (
-          <AppointmentComponent
+          <AppointmentComponentContainer
             key={appointment.time}
             appointment={appointment}
-            cancelAppointment={this.props.cancelAppointment}
           />
         ))}
         <button onClick={this.onClick}>Add Appointment</button>
@@ -57,13 +56,18 @@ export class AppComponent extends React.Component<
   };
 }
 
-interface AppointmentComponentProps {
+export interface AppointmentComponentProps {
   appointment: Appointment;
+}
+
+export interface AppointmentComponentDispatch {
   cancelAppointment: (appointment: Appointment) => void;
 }
 
-class AppointmentComponent extends React.Component<AppointmentComponentProps> {
-  public render() {
+export class AppointmentComponent extends React.Component<
+  AppointmentComponentProps & AppointmentComponentDispatch
+> {
+  public render(): JSX.Element {
     const { time, duration } = this.props.appointment;
     return (
       <div>

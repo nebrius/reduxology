@@ -76,26 +76,27 @@ export class Reduxology<
 
   constructor() {
     // We can't use class fields to bind these methods using arrow functions,
-    // since we have to use overloaded TypeScript signatures which don't support
-    // class fields, so we bind these the old fashion way instead
+    // since we have to use overloaded or generic TypeScript signatures which
+    // don't support class fields, so we bind these the old fashion way instead
     this.dispatch = this.dispatch.bind(this);
     this.createListener = this.createListener.bind(this);
+    this.createContainer = this.createContainer.bind(this);
   }
 
-  public createContainer = (
-    mapStateToProps: (getSlice: GetSlice<TStateRecord>, ownProps?: any) => any,
+  public createContainer<T>(
+    mapStateToProps: (getSlice: GetSlice<TStateRecord>, ownProps: T) => any,
     mapDispatchToProps: (
       dispatch: Reduxology<TStateRecord, TActionsRecord>['dispatch'],
-      ownProps?: any
+      ownProps: T
     ) => any,
     component: any
-  ): ConnectedComponent<any, Pick<unknown, never>> => {
+  ): ConnectedComponent<any, T> {
     return connect(
-      (rawState: any, ownProps) =>
+      (rawState: any, ownProps: T) =>
         mapStateToProps(new State<TStateRecord>(rawState).getSlice, ownProps),
       (_, ownProps) => mapDispatchToProps(this.dispatch, ownProps)
     )(component);
-  };
+  }
 
   public createReducer = <K extends keyof TStateRecord>(
     slice: K,

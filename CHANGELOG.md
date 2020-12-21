@@ -1,3 +1,7 @@
+## 2.1.1 (2020-12-20)
+
+- Fixed a TypeScript "hole" where container's own properties weren't being passed out to parent components consuming the container
+
 ## 2.1.0 (2020-12-06)
 
 - Updated action listeners so they are passed `getSlice` as the second argument, just like containers

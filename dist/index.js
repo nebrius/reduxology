@@ -40,9 +40,6 @@ class Reduxology {
     constructor() {
         this[_a] = {};
         this[_b] = false;
-        this.createContainer = (mapStateToProps, mapDispatchToProps, component) => {
-            return react_redux_1.connect((rawState, ownProps) => mapStateToProps(new state_1.State(rawState).getSlice, ownProps), (_, ownProps) => mapDispatchToProps(this.dispatch, ownProps))(component);
-        };
         this.createReducer = (slice, initialData) => {
             if (this[isAlive]) {
                 throw new Error('Cannot create a reducer after the app has been created');
@@ -80,10 +77,14 @@ class Reduxology {
                 React.createElement(Container, null)));
         };
         // We can't use class fields to bind these methods using arrow functions,
-        // since we have to use overloaded TypeScript signatures which don't support
-        // class fields, so we bind these the old fashion way instead
+        // since we have to use overloaded or generic TypeScript signatures which
+        // don't support class fields, so we bind these the old fashion way instead
         this.dispatch = this.dispatch.bind(this);
         this.createListener = this.createListener.bind(this);
+        this.createContainer = this.createContainer.bind(this);
+    }
+    createContainer(mapStateToProps, mapDispatchToProps, component) {
+        return react_redux_1.connect((rawState, ownProps) => mapStateToProps(new state_1.State(rawState).getSlice, ownProps), (_, ownProps) => mapDispatchToProps(this.dispatch, ownProps))(component);
     }
     createListener(action, listener) {
         if (this[isAlive]) {
