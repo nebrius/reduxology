@@ -93,6 +93,9 @@ class Reduxology {
         return new listener_1.Listener(action, listener);
     }
     dispatch(action, data) {
+        if (!this[store]) {
+            throw new Error('Cannot call "dispatch" before "createApp" is called');
+        }
         this[store].dispatch({ type: action, data });
     }
 }

@@ -194,6 +194,9 @@ export class Reduxology<
   ): void;
   public dispatch<P extends DispatchVK>(action: P): void;
   public dispatch(action: any, data?: any): void {
+    if (!this[store]) {
+      throw new Error('Cannot call "dispatch" before "createApp" is called');
+    }
     this[store].dispatch({ type: action, data });
   }
 }

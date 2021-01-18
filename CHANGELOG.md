@@ -1,3 +1,7 @@
+## 2.1.2 (2020-01-18)
+
+- Added a better error message when prematurely calling dispatch
+
 ## 2.1.1 (2020-12-20)
 
 - Fixed a TypeScript "hole" where container's own properties weren't being passed out to parent components consuming the container
