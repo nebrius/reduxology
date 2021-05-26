@@ -166,7 +166,7 @@ import './reducers';
 
 const app = createApp({
   container: AppContainer,
-  reducers: [appointmentsReducer]
+  reducers: [appointmentsReducer],
   listeners: [requestItemListener]
 });
 
