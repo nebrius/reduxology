@@ -1,3 +1,7 @@
+## 2.1.3 (2021-06-06)
+
+- Fixed a bug where container types aren't propagated to parent components properly
+
 ## 2.1.2 (2020-01-18)
 
 - Added a better error message when prematurely calling dispatch

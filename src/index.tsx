@@ -91,7 +91,8 @@ export class Reduxology<
     ) => any,
     component: any
   ): ConnectedComponent<any, T> {
-    return connect(
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    return connect<TStateRecord, {}, T>(
       (rawState: any, ownProps: T) =>
         mapStateToProps(new State<TStateRecord>(rawState).getSlice, ownProps),
       (_, ownProps) => mapDispatchToProps(this.dispatch, ownProps)

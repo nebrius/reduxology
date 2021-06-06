@@ -49,7 +49,7 @@ export const AppContainer = createContainer(
   AppComponent
 );
 
-export const AppointmentComponentContainer = createContainer(
+export const AppointmentComponentContainer = createContainer<AppointmentComponentProps>(
   (
     getSlice,
     ownProps: AppointmentComponentProps

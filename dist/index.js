@@ -84,6 +84,7 @@ class Reduxology {
         this.createContainer = this.createContainer.bind(this);
     }
     createContainer(mapStateToProps, mapDispatchToProps, component) {
+        // eslint-disable-next-line @typescript-eslint/ban-types
         return react_redux_1.connect((rawState, ownProps) => mapStateToProps(new state_1.State(rawState).getSlice, ownProps), (_, ownProps) => mapDispatchToProps(this.dispatch, ownProps))(component);
     }
     createListener(action, listener) {

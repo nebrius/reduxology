@@ -1,6 +1,6 @@
 {
   "name": "reduxology",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "A library that makes it easier to manage boilerplate and reason about React Redux applications",
   "main": "dist/index.js",
   "types": "./declarations/index.d.ts",
