@@ -162,11 +162,9 @@ import { AppContainer } from './containers';
 import { appointmentsReducer } from './reducers';
 import { requestItemListener } from './listeners';
 
-import './reducers';
-
 const app = createApp({
   container: AppContainer,
-  reducers: [appointmentsReducer]
+  reducers: [appointmentsReducer],
   listeners: [requestItemListener]
 });
 
