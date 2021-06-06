@@ -22,7 +22,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.dispatch = exports.createApp = exports.createListener = exports.createReducer = exports.createContainer = exports.Reduxology = void 0;
 const React = require("react");
@@ -37,45 +36,10 @@ const isAlive = Symbol();
 // The type implementation for this is borrowed from Brian Terlson's work:
 // https://medium.com/@bterlson/strongly-typed-event-emitters-2c2345801de8
 class Reduxology {
+    [actionListeners] = {};
+    [store];
+    [isAlive] = false;
     constructor() {
-        this[_a] = {};
-        this[_b] = false;
-        this.createReducer = (slice, initialData) => {
-            if (this[isAlive]) {
-                throw new Error('Cannot create a reducer after the app has been created');
-            }
-            return new reducer_1.Reducer(slice, initialData);
-        };
-        this.createApp = ({ container: Container, reducers: appReducers = [], listeners: appListeners = [], middleware = [] }) => {
-            this[isAlive] = true;
-            const reducerSet = {};
-            for (const appReducer of appReducers) {
-                const slice = appReducer[reducer_1.reducerSlice];
-                if (reducerSet[slice]) {
-                    throw new Error(`Cannot create reducer at ${slice} because that slice is already taken`);
-                }
-                appReducer[reducer_1.makeReducerAlive]();
-                reducerSet[slice] = appReducer[reducer_1.reduxReducer];
-            }
-            for (const appListener of appListeners) {
-                const action = appListener[listener_1.listenerAction];
-                if (!this[actionListeners].hasOwnProperty(action)) {
-                    this[actionListeners][action] = [];
-                }
-                this[actionListeners][action].push(appListener[listener_1.listenerListener]);
-            }
-            middleware.unshift(() => (next) => (action) => {
-                if (this[actionListeners][action.type]) {
-                    for (const listener of this[actionListeners][action.type]) {
-                        listener(action.data, new state_1.State(this[store].getState()).getSlice);
-                    }
-                }
-                return next(action);
-            });
-            this[store] = redux_1.createStore(redux_1.combineReducers(reducerSet), redux_1.applyMiddleware(...middleware));
-            return (React.createElement(react_redux_1.Provider, { store: this[store] },
-                React.createElement(Container, null)));
-        };
         // We can't use class fields to bind these methods using arrow functions,
         // since we have to use overloaded or generic TypeScript signatures which
         // don't support class fields, so we bind these the old fashion way instead
@@ -87,12 +51,48 @@ class Reduxology {
         // eslint-disable-next-line @typescript-eslint/ban-types
         return react_redux_1.connect((rawState, ownProps) => mapStateToProps(new state_1.State(rawState).getSlice, ownProps), (_, ownProps) => mapDispatchToProps(this.dispatch, ownProps))(component);
     }
+    createReducer = (slice, initialData) => {
+        if (this[isAlive]) {
+            throw new Error('Cannot create a reducer after the app has been created');
+        }
+        return new reducer_1.Reducer(slice, initialData);
+    };
     createListener(action, listener) {
         if (this[isAlive]) {
             throw new Error('Cannot create a listener after the app has been created');
         }
         return new listener_1.Listener(action, listener);
     }
+    createApp = ({ container: Container, reducers: appReducers = [], listeners: appListeners = [], middleware = [] }) => {
+        this[isAlive] = true;
+        const reducerSet = {};
+        for (const appReducer of appReducers) {
+            const slice = appReducer[reducer_1.reducerSlice];
+            if (reducerSet[slice]) {
+                throw new Error(`Cannot create reducer at ${slice} because that slice is already taken`);
+            }
+            appReducer[reducer_1.makeReducerAlive]();
+            reducerSet[slice] = appReducer[reducer_1.reduxReducer];
+        }
+        for (const appListener of appListeners) {
+            const action = appListener[listener_1.listenerAction];
+            if (!this[actionListeners].hasOwnProperty(action)) {
+                this[actionListeners][action] = [];
+            }
+            this[actionListeners][action].push(appListener[listener_1.listenerListener]);
+        }
+        middleware.unshift(() => (next) => (action) => {
+            if (this[actionListeners][action.type]) {
+                for (const listener of this[actionListeners][action.type]) {
+                    listener(action.data, new state_1.State(this[store].getState()).getSlice);
+                }
+            }
+            return next(action);
+        });
+        this[store] = redux_1.createStore(redux_1.combineReducers(reducerSet), redux_1.applyMiddleware(...middleware));
+        return (React.createElement(react_redux_1.Provider, { store: this[store] },
+            React.createElement(Container, null)));
+    };
     dispatch(action, data) {
         if (!this[store]) {
             throw new Error('Cannot call "dispatch" before "createApp" is called');
@@ -101,7 +101,6 @@ class Reduxology {
     }
 }
 exports.Reduxology = Reduxology;
-_a = actionListeners, _b = isAlive;
 const defaultReduxology = new Reduxology();
 exports.createContainer = defaultReduxology.createContainer;
 exports.createReducer = defaultReduxology.createReducer;

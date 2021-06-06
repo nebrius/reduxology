@@ -67,10 +67,8 @@ export class Reduxology<
     DispatchVK
   >
 > {
-  private [actionListeners]: Record<
-    any,
-    ListenerFunc<any, TStateRecord>[]
-  > = {};
+  private [actionListeners]: Record<any, ListenerFunc<any, TStateRecord>[]> =
+    {};
   private [store]: Store;
   private [isAlive] = false;
 

@@ -22,7 +22,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Reducer = exports.makeReducerAlive = exports.reducerSlice = exports.reduxReducer = void 0;
 const immer_1 = require("immer");
@@ -33,9 +32,11 @@ exports.makeReducerAlive = Symbol();
 const actionHandlers = Symbol();
 const isAlive = Symbol();
 class Reducer {
+    [actionHandlers] = {};
+    [exports.reduxReducer];
+    [exports.reducerSlice];
+    [isAlive] = false;
     constructor(sliceName, init) {
-        this[_a] = {};
-        this[_b] = false;
         this[exports.reducerSlice] = sliceName;
         this.handle = this.handle.bind(this);
         this[exports.reduxReducer] = (state, action) => {
@@ -60,7 +61,7 @@ class Reducer {
         this[actionHandlers][actionType] = handler;
         return this;
     }
-    [(_a = actionHandlers, _b = isAlive, exports.makeReducerAlive)]() {
+    [exports.makeReducerAlive]() {
         this[isAlive] = true;
     }
 }

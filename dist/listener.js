@@ -27,6 +27,8 @@ exports.Listener = exports.listenerListener = exports.listenerAction = void 0;
 exports.listenerAction = Symbol();
 exports.listenerListener = Symbol();
 class Listener {
+    [exports.listenerAction];
+    [exports.listenerListener];
     constructor(actionName, newListener) {
         this[exports.listenerAction] = actionName;
         this[exports.listenerListener] = newListener;

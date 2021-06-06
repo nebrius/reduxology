@@ -1,6 +1,7 @@
 ## 2.1.3 (2021-06-06)
 
 - Fixed a bug where container types aren't propagated to parent components properly
+- Updated dependencies with breaking changes
 
 ## 2.1.2 (2020-01-18)
 
