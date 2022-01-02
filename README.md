@@ -24,7 +24,7 @@ Reduxology is a library that makes creating Redux-based React applications easie
 
 In practice, this library is a wrapper for `redux` and `react-redux` in your application, replacing the need to use them directly. It is similar to [Redux Toolkit](https://redux-toolkit.js.org/), except that it also abstracts [React Redux](https://react-redux.js.org/) and is a replacement for both libraries.
 
-Since this module is still new, this README is written with the assumption that you already understand the concepts of [React](https://reactjs.org/), [Redux](https://redux.js.org/), and [React Redux](https://react-redux.js.org/). If this library takes off, I will of course invest in creating better documentation.
+This README is written with the assumption that you already understand the concepts of [React](https://reactjs.org/), [Redux](https://redux.js.org/), and [React Redux](https://react-redux.js.org/). If this library takes off, I will invest in creating better documentation.
 
 ## Installation
 
@@ -46,7 +46,7 @@ For a complete example, check out the [example in this repo](example/). For a re
 
 There aren't any actual APIs for working with actions in Reduxology or React+Redux, but they're an important concept. In traditional React, an action is an object with a `type` property that reducers use to determine how to react to an action. In many ways, actions are a lot like standard events in JavaScript with only minor differences in shape and usage.
 
-In Reduxology, actions are modified to look more like events in vanilla JavaScript. In Reduxology, actions are not an object with a `type` property, but rather a relationship between a string identifying the type of event, and an arbitrary piece of data representing the rest of the action. Containers and reducers both interact with actions with this same abstraction, as we'll see in the sections on reducers and containers below.
+In Reduxology, actions are modified to look more like events in JavaScript. In Reduxology, actions are not an object with a `type` property, but rather a relationship between a string identifying the type of event, and an arbitrary piece of data representing the rest of the action. Containers and reducers both interact with actions with this same abstraction, as we'll see in the sections on reducers and containers below.
 
 ### State
 
@@ -60,7 +60,7 @@ To create a reducer, we use the [createReducer()](#createreducerslicename-initia
 
 There is are two core differences between an action handler and an event listener. Each action type can only have _one_ action handler associated with it per reducer. [handle()](#reducerhandleactiontype-handler--reducer) will throw an exception if you try to register more than one handler.
 
-This happens because of the second core difference between an action handler and an event listener: action handlers produce new state that is passed back to the runtime by returning the new state value, whereas event listeners don't produce anything. This returned value is the new state created from the old state and the action. Allowing more than one action handler would make the multiple values produced by the multiple handlers ambiguous.
+This happens because of the second core difference between an action handler and an event listener: action handlers produce changes based on the action that updates state, whereas event listeners don't produce anything. Allowing more than one action handler would make the resulting state change produced by the multiple handlers ambiguous.
 
 Each action handler uses [Immer](https://immerjs.github.io/immer/docs/introduction) under the hood, which means you don't have to create a complete copy of the state like you need to in vanilla Redux. You can modify properties as you see fit and the rest is taken care of.
 
@@ -95,7 +95,7 @@ _Note:_ you do not need to register any handlers to create the reducer. The redu
 
 Containers look quite similar to vanilla React Redux containers, except that there is a single function call to [createContainer()](#createcontainermapstatetoprops-mapdispatchtoprops-component--react-redux-container) instead of a double call to `connect()` and the function it returns. The first argument is mapStateToProps, and the second is mapDispatchToProps, same as in React Redux.
 
-A key difference between React Redux and Reduxology is the argument passed to the mapDispatchToProps function. In traditional React Redux this argument is a plain ole JavaScript object containing the entire state, typically called `state`. In Reduxology, this argument is a function, typically called `getSlice`. Your container can then call `getSlice()` with a slice name, and it returns that piece of state. At first, this value will be the same as the initialization value passed to [createReducer()](#createreducerslicename-initialdata--reducer).
+A key difference between React Redux and Reduxology is the argument passed to the mapStateToProps function. In traditional React Redux this argument is a plain ole JavaScript object containing the entire state, typically called `state`. In Reduxology, this argument is a function, typically called `getSlice`. Your container can then call `getSlice()` with a slice name, and it returns that piece of state. At first, this value will be the same as the initialization value passed to [createReducer()](#createreducerslicename-initialdata--reducer).
 
 ```JavaScript
 // containers.ts
@@ -125,7 +125,7 @@ export const AppContainer = createContainer(
 
 Middleware is a large topic for Redux. Reduxology supports using existing Redux middleware via the [createApp()](#createappoptions--react-component) function. This is useful if you want to pass in off-the-shelf Redux middleware, such as [redux-thunk](https://github.com/reduxjs/redux-thunk) or [redux-saga](https://github.com/redux-saga/redux-saga).
 
-If you want to write your own middleware, Reduxology offers a simplified interface for addressing what I believe is the most common use case that middleware provides for: API calls. This interface is called an _action listener_. An action listener listens for, well, actions. An action listener is virtually indistinguishable from a general JavaScript event listener in practice, and is invoked whenever an action is dispatched.
+If you want to write your own middleware, Reduxology offers a simplified interface for addressing the most common use case that middleware is used for: API calls. This interface is called an _action listener_. An action listener, well, listens for actions. An action listener is virtually indistinguishable from a general JavaScript event listener in practice, and is invoked whenever an action is dispatched.
 
 For example, if you wanted to make an API call that fetches an item after a user clicks a button that dispatches a `RequestItem` action, you could write something like this:
 
@@ -193,7 +193,7 @@ export const createApp = reduxology.createApp;
 export const dispatch = reduxology.dispatch;
 ```
 
-_Note:_ All of the methods on the `Reduxology` class are properly bound, so you don't need to worry about `this`.
+_Note:_ All of the methods on the `Reduxology` class are properly bound, so you don't need to worry about binding `this` manually.
 
 The `types.ts` file is implemented as:
 
@@ -256,7 +256,7 @@ The implementation for this type checking is based on Brian Terlsen's fantastic 
 
 ## Motivation
 
-I've written many React apps, some small, some large. I've also taught React to a number of folks. Many developers, especially junior developers, get tripped up on both understanding what all the pieces do, and how to connect them together. I've been thinking hard on this problem for a while, and I think I've figured out where the confusion comes from.
+I've written many React apps, some small, some large. I've also taught React to a number of folks. Many developers, especially junior developers, get tripped up on understanding what all the pieces do, and how to connect them together. I've been thinking hard on this problem for a while, and I think I've figured out where the confusion comes from.
 
 When we talk about React+Redux and separation of concerns, we tend to talk about the _data flow_ separation between parts of a React+Redux app, specifically how data flows _one way_. And React+Redux is _very_ good at constraining data flow such that it's easy to test and reason about.
 
@@ -284,7 +284,7 @@ But what about _consuming_ these actions, which happens in reducers? There is no
 
 ### Reducers and Containers <!-- omit in toc -->
 
-Next, let's talk about reducers and containers. At a high level, reducers and containers are mirror images of each other. A reducer consumes an action and produces state, while a container consumes state and produces actions. This is a nice level of symmetry in the design.
+Next, let's talk about reducers and containers. At a high level, reducers and containers are mirror images of each other. A reducer consumes an action and produces state, while a container consumes state and produces actions (indirectly through a child component). This is a nice level of symmetry in the design.
 
 Reducers take in the application's current state plus an action, and produce a new state. One of the nice ways reducers are encapsulated is that each reducer is only responsible for a _subsection_ of state, which I call a _slice_. Reducers don't need to know anything about the state in the rest of the store. This is really great, and one of the things I love most about reducers. Below is an example:
 
@@ -324,7 +324,7 @@ combineReducers({
 
 This approach breaks down in one subtle way though, and that has to do with _where_ this state exists in the store. The state has to exist somewhere, so that's not an issue in and of itself. The issue has to do with how the location in the store is _expressed_.
 
-Reducers define this location in how they are combined together with the `combineReducers` calls. The location ends up being implicit, and one of the niceties of this is that you can migrate state produced by a reducer from one location to another without modifying the reducer itself, just the `combineReducers` call.
+Reducers define this location in how they are combined together with the `combineReducers` calls. The location ends up being implicit, and one of the niceties of this is that you can rename a slice that a reducer operates on without modifying the reducer itself, just the `combineReducers` call.
 
 Similar to action creators, we have a nice encapsulation here. But what about those that _consume_ this state, i.e. containers? There is no equivalent mechanism to abstract the state from the location of that state, as we can see in the related container below:
 
