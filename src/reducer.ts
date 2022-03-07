@@ -34,7 +34,7 @@ export const makeReducerAlive = Symbol();
 const actionHandlers = Symbol();
 const isAlive = Symbol();
 
-type Handler<S, A> = (slice: S, action: A) => void;
+type Handler<Slice, Action> = (slice: Slice, action: Action) => void;
 
 export class Reducer<
   Slice,
@@ -77,7 +77,7 @@ export class Reducer<
   ): void;
   public handle<Action extends ActionVK>(
     action: Action,
-    handler: () => void
+    handler: Handler<Slice, void>
   ): void;
   public handle(
     actionType: string,

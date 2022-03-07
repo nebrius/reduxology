@@ -79,7 +79,7 @@ class Reduxology {
         middleware.unshift(() => (next) => (action) => {
             if (this[actionListeners][action.type]) {
                 for (const listener of this[actionListeners][action.type]) {
-                    listener(action.data, new state_1.State(this[store].getState()).getSlice);
+                    listener(new state_1.State(this[store].getState()).getSlice, action.data);
                 }
             }
             return next(action);

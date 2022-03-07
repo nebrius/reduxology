@@ -103,7 +103,7 @@ For example, if you wanted to make an API call that fetches an item after a user
 // listeners.ts
 import { handle, dispatch } from 'reduxology';
 
-export const requestItemListener = handle('RequestItem', async (id) => {
+export const requestItemListener = handle('RequestItem', async (getSlice, id) => {
   try {
     const response = await fetch(`/api/items/${id}/`);
     const data = await response.json();
@@ -609,7 +609,7 @@ Creates a listener for the given action. This method is useful for connecting AP
       <td>The type of action to listen for</td>
     </tr>
     <tr>
-      <td>listener(data, getSlice)</td>
+      <td>listener(getSlice, data)</td>
       <td>any</td>
       <td>A listener that will receive the action data.</td>
     </tr>
@@ -627,14 +627,14 @@ Creates a listener for the given action. This method is useful for connecting AP
           </thead>
           <tbody>
             <tr>
-              <td>data</td>
-              <td>any or undefined</td>
-              <td>Data associated with the action, as passed to the <a href="#dispatchactiontype-data">dispatch function</a>.</td>
-            </tr>
-            <tr>
               <td>getSlice(sliceName)</td>
               <td>Function</td>
               <td>Gets a state slice from the global state object</td>
+            </tr>
+            <tr>
+              <td>data</td>
+              <td>any or undefined</td>
+              <td>Data associated with the action, as passed to the <a href="#dispatchactiontype-data">dispatch function</a>.</td>
             </tr>
           </tbody>
         </table>

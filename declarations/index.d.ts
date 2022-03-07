@@ -13,8 +13,8 @@ export declare class Reduxology<State, Actions, ActionVK extends VoidKeys<Action
     constructor();
     createContainer<ComponentProps = null, ComponentDispatch = null, OwnProps = Record<string, never>>(mapStateToProps: (getSlice: GetSlice<State>, ownProps: OwnProps) => ComponentProps | null, mapDispatchToProps: (dispatch: Reduxology<State, Actions>['dispatch'], ownProps: OwnProps) => ComponentDispatch | null, component: any): ConnectedComponent<any, OwnProps>;
     createReducer: <Slice extends keyof State>(slice: Slice, initialData: State[Slice]) => Reducer<State[Slice], Actions, keyof Actions extends (Actions[keyof Actions] extends void ? keyof Actions : never) ? (Actions[keyof Actions] extends void ? keyof Actions : never) & keyof Actions : never, Exclude<keyof Actions, keyof Actions extends (Actions[keyof Actions] extends void ? keyof Actions : never) ? (Actions[keyof Actions] extends void ? keyof Actions : never) & keyof Actions : never>>;
-    handle<ActionName extends ActionNVK>(action: ActionName, listener: ListenerFunc<Actions[ActionName], State>): Listener<State>;
-    handle<Action extends ActionVK>(action: Action, listener: () => void): Listener<State>;
+    handle<ActionName extends ActionNVK>(action: ActionName, listener: ListenerFunc<State, Actions[ActionName]>): Listener<State>;
+    handle<ActionName extends ActionVK>(action: ActionName, listener: ListenerFunc<State, void>): Listener<State>;
     createApp: ({ container, reducers: appReducers, listeners: appListeners, middleware }: {
         container: React.Component | ConnectedComponent<any, any>;
         listeners?: Listener<State>[] | undefined;
@@ -31,7 +31,7 @@ export declare const createContainer: <ComponentProps = null, ComponentDispatch 
 export declare const createReducer: <Slice extends never>(slice: Slice, initialData: unknown) => Reducer<unknown, unknown, never, never>;
 export declare const createListener: {
     <ActionName extends never>(action: ActionName, listener: ListenerFunc<unknown, unknown>): Listener<unknown>;
-    <Action extends never>(action: Action, listener: () => void): Listener<unknown>;
+    <ActionName_1 extends never>(action: ActionName_1, listener: ListenerFunc<unknown, void>): Listener<unknown>;
 };
 export declare const createApp: ({ container, reducers: appReducers, listeners: appListeners, middleware }: {
     container: React.Component | ConnectedComponent<any, any>;

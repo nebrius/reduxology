@@ -1,9 +1,14 @@
+## 3.0.2 (2022-03-07)
+
+- Type fixes for handlers of actions with data type `void`
+
 ## 3.0.1 (2022-03-07)
 
 - Fixed a bug where `mapStateToProps` and `mapDispatchToProps` might return `null`.
 
 ## 3.0.0 (2022-03-07)
 
+- BREAKING CHANGE: action listener parameters have been swapped, with the first now being `getSlice` and the second being the action data.
 - BREAKING CHANGE: `createApp` now returns a `React.FunctionComponent` instead of `JSX.Element`
 - BREAKING CHANGE: `createContainer` type signature updated to take three generics (props, dispatch, and ownProps) instead of a single argument (the old behavior was a bug)
 - BREAKING CHANGE: `createListener` has been renamed to `handle`

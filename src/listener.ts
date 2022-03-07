@@ -27,15 +27,15 @@ import { GetSlice } from './state';
 export const listenerAction = Symbol();
 export const listenerListener = Symbol();
 
-export type ListenerFunc<ActionData, State> = (
-  data: ActionData,
-  getSlice: GetSlice<State>
+export type ListenerFunc<State, ActionData> = (
+  getSlice: GetSlice<State>,
+  data: ActionData
 ) => void;
 
 export class Listener<State> {
   public [listenerAction]: string;
-  public [listenerListener]: ListenerFunc<unknown, State>;
-  constructor(actionName: string, newListener: ListenerFunc<unknown, State>) {
+  public [listenerListener]: ListenerFunc<State, unknown>;
+  constructor(actionName: string, newListener: ListenerFunc<State, unknown>) {
     this[listenerAction] = actionName;
     this[listenerListener] = newListener;
   }

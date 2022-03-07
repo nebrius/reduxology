@@ -66,7 +66,7 @@ export class Reduxology<
     DispatchVK
   >
 > {
-  private [actionListeners]: Record<any, ListenerFunc<any, State>[]> = {};
+  private [actionListeners]: Record<any, ListenerFunc<State, any>[]> = {};
   private [store]: Store;
 
   constructor() {
@@ -117,15 +117,15 @@ export class Reduxology<
 
   public handle<ActionName extends ActionNVK>(
     action: ActionName,
-    listener: ListenerFunc<Actions[ActionName], State>
+    listener: ListenerFunc<State, Actions[ActionName]>
   ): Listener<State>;
-  public handle<Action extends ActionVK>(
-    action: Action,
-    listener: () => void
+  public handle<ActionName extends ActionVK>(
+    action: ActionName,
+    listener: ListenerFunc<State, void>
   ): Listener<State>;
   public handle(
     action: any,
-    listener: ListenerFunc<any, State> | (() => void)
+    listener: ListenerFunc<State, any>
   ): Listener<State> {
     return new Listener(action, listener);
   }
@@ -167,8 +167,8 @@ export class Reduxology<
       if (this[actionListeners][action.type]) {
         for (const listener of this[actionListeners][action.type]) {
           listener(
-            action.data,
-            new State<State>(this[store].getState()).getSlice
+            new State<State>(this[store].getState()).getSlice,
+            action.data
           );
         }
       }
