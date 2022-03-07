@@ -42,7 +42,7 @@ class Reduxology {
         // since we have to use overloaded or generic TypeScript signatures which
         // don't support class fields, so we bind these the old fashion way instead
         this.dispatch = this.dispatch.bind(this);
-        this.createListener = this.createListener.bind(this);
+        this.handle = this.handle.bind(this);
         this.createContainer = this.createContainer.bind(this);
     }
     createContainer(mapStateToProps, mapDispatchToProps, component) {
@@ -55,7 +55,7 @@ class Reduxology {
     createReducer = (slice, initialData) => {
         return new reducer_1.Reducer(slice, initialData);
     };
-    createListener(action, listener) {
+    handle(action, listener) {
         return new listener_1.Listener(action, listener);
     }
     createApp = ({ container, reducers: appReducers = [], listeners: appListeners = [], middleware = [] }) => {
@@ -101,7 +101,7 @@ exports.Reduxology = Reduxology;
 const defaultReduxology = new Reduxology();
 exports.createContainer = defaultReduxology.createContainer;
 exports.createReducer = defaultReduxology.createReducer;
-exports.createListener = defaultReduxology.createListener;
+exports.createListener = defaultReduxology.handle;
 exports.createApp = defaultReduxology.createApp;
 exports.dispatch = defaultReduxology.dispatch;
 //# sourceMappingURL=index.js.map

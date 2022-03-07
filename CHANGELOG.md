@@ -1,8 +1,10 @@
 ## 3.0.0 (2022-03-07)
 
 - BREAKING CHANGE: `createApp` now returns a `React.FunctionComponent` instead of `JSX.Element`
-- BREAKING CHANGE: `createContainer` type signature updated to take three generics (props, dispatch, and ownProps) instead of a single argument (this was a bug)
-- POSSIBLY BREAKING CHANGE: `createReducer` and `createListener` no longer throw after app creation
+- BREAKING CHANGE: `createContainer` type signature updated to take three generics (props, dispatch, and ownProps) instead of a single argument (the old behavior was a bug)
+- BREAKING CHANGE: `createListener` has been renamed to `handle`
+  - The old name implied that it behaved similarly to `createReducer`, when in fact it's actually similar to `createReducer().handle()`
+- POSSIBLY BREAKING CHANGE: `createReducer` and `handle` (formerly `createListener`) no longer throw after app creation
   - We already prevented reducers and listeners from being created and connected to an app after app creation due to how these are wired up to `createApp`
   - Throwing this exception could, in some circumstances, break apps where stores are destroyed and recreated, such as in Next.js apps
   - `.handle` and similar methods on reducer/listener instances still throw

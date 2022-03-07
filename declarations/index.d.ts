@@ -13,8 +13,8 @@ export declare class Reduxology<State, Actions, ActionVK extends VoidKeys<Action
     constructor();
     createContainer<ComponentProps = null, ComponentDispatch = null, OwnProps = Record<string, never>>(mapStateToProps: (getSlice: GetSlice<State>, ownProps: OwnProps) => ComponentProps | null, mapDispatchToProps: (dispatch: Reduxology<State, Actions>['dispatch'], ownProps: OwnProps) => ComponentDispatch | null, component: any): ConnectedComponent<any, OwnProps>;
     createReducer: <Slice extends keyof State>(slice: Slice, initialData: State[Slice]) => Reducer<State[Slice], Actions, keyof Actions extends (Actions[keyof Actions] extends void ? keyof Actions : never) ? (Actions[keyof Actions] extends void ? keyof Actions : never) & keyof Actions : never, Exclude<keyof Actions, keyof Actions extends (Actions[keyof Actions] extends void ? keyof Actions : never) ? (Actions[keyof Actions] extends void ? keyof Actions : never) & keyof Actions : never>>;
-    createListener<ActionName extends ActionNVK>(action: ActionName, listener: ListenerFunc<Actions[ActionName], State>): Listener<State>;
-    createListener<Action extends ActionVK>(action: Action, listener: () => void): Listener<State>;
+    handle<ActionName extends ActionNVK>(action: ActionName, listener: ListenerFunc<Actions[ActionName], State>): Listener<State>;
+    handle<Action extends ActionVK>(action: Action, listener: () => void): Listener<State>;
     createApp: ({ container, reducers: appReducers, listeners: appListeners, middleware }: {
         container: React.Component | ConnectedComponent<any, any>;
         listeners?: Listener<State>[] | undefined;

@@ -74,7 +74,7 @@ export class Reduxology<
     // since we have to use overloaded or generic TypeScript signatures which
     // don't support class fields, so we bind these the old fashion way instead
     this.dispatch = this.dispatch.bind(this);
-    this.createListener = this.createListener.bind(this);
+    this.handle = this.handle.bind(this);
     this.createContainer = this.createContainer.bind(this);
   }
 
@@ -115,16 +115,15 @@ export class Reduxology<
     return new Reducer<State[Slice], Actions>(slice as string, initialData);
   };
 
-  // TODO: symmetry between createReducer and createListener is off...the later handles an action, the former doesn't
-  public createListener<ActionName extends ActionNVK>(
+  public handle<ActionName extends ActionNVK>(
     action: ActionName,
     listener: ListenerFunc<Actions[ActionName], State>
   ): Listener<State>;
-  public createListener<Action extends ActionVK>(
+  public handle<Action extends ActionVK>(
     action: Action,
     listener: () => void
   ): Listener<State>;
-  public createListener(
+  public handle(
     action: any,
     listener: ListenerFunc<any, State> | (() => void)
   ): Listener<State> {
@@ -208,6 +207,6 @@ const defaultReduxology = new Reduxology();
 
 export const createContainer = defaultReduxology.createContainer;
 export const createReducer = defaultReduxology.createReducer;
-export const createListener = defaultReduxology.createListener;
+export const createListener = defaultReduxology.handle;
 export const createApp = defaultReduxology.createApp;
 export const dispatch = defaultReduxology.dispatch;
