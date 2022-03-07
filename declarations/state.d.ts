@@ -1,8 +1,8 @@
-export declare type GetSlice<T> = <K extends keyof T>(slice: K) => T[K];
+export declare type GetSlice<StateData> = <Slice extends keyof StateData>(slice: Slice) => StateData[Slice];
 declare const state: unique symbol;
-export declare class State<T> {
+export declare class State<StateData> {
     private [state];
-    constructor(rawState: Record<string, any>);
-    getSlice: GetSlice<T>;
+    constructor(rawState: StateData);
+    getSlice: GetSlice<StateData>;
 }
 export {};

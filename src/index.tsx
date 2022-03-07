@@ -49,28 +49,25 @@ import { VoidKeys } from './util';
 
 const store = Symbol();
 const actionListeners = Symbol();
-const isAlive = Symbol();
 
 // The type implementation for this is borrowed from Brian Terlson's work:
 // https://medium.com/@bterlson/strongly-typed-event-emitters-2c2345801de8
 export class Reduxology<
-  TStateRecord,
-  TActionsRecord,
-  ActionVK extends VoidKeys<TActionsRecord> = VoidKeys<TActionsRecord>,
-  ActionNVK extends Exclude<keyof TActionsRecord, ActionVK> = Exclude<
-    keyof TActionsRecord,
+  State,
+  Actions,
+  ActionVK extends VoidKeys<Actions> = VoidKeys<Actions>,
+  ActionNVK extends Exclude<keyof Actions, ActionVK> = Exclude<
+    keyof Actions,
     ActionVK
   >,
-  DispatchVK extends VoidKeys<TActionsRecord> = VoidKeys<TActionsRecord>,
-  DispatchNVK extends Exclude<keyof TActionsRecord, DispatchVK> = Exclude<
-    keyof TActionsRecord,
+  DispatchVK extends VoidKeys<Actions> = VoidKeys<Actions>,
+  DispatchNVK extends Exclude<keyof Actions, DispatchVK> = Exclude<
+    keyof Actions,
     DispatchVK
   >
 > {
-  private [actionListeners]: Record<any, ListenerFunc<any, TStateRecord>[]> =
-    {};
+  private [actionListeners]: Record<any, ListenerFunc<any, State>[]> = {};
   private [store]: Store;
-  private [isAlive] = false;
 
   constructor() {
     // We can't use class fields to bind these methods using arrow functions,
@@ -81,67 +78,70 @@ export class Reduxology<
     this.createContainer = this.createContainer.bind(this);
   }
 
-  public createContainer<T>(
-    mapStateToProps: (getSlice: GetSlice<TStateRecord>, ownProps: T) => any,
+  public createContainer<
+    ComponentProps = null,
+    ComponentDispatch = null,
+    OwnProps = Record<string, never>
+  >(
+    mapStateToProps: (
+      getSlice: GetSlice<State>,
+      ownProps: OwnProps
+    ) => ComponentProps | null,
     mapDispatchToProps: (
-      dispatch: Reduxology<TStateRecord, TActionsRecord>['dispatch'],
-      ownProps: T
-    ) => any,
+      dispatch: Reduxology<State, Actions>['dispatch'],
+      ownProps: OwnProps
+    ) => ComponentDispatch | null,
     component: any
-  ): ConnectedComponent<any, T> {
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    return connect<TStateRecord, {}, T>(
-      (rawState: any, ownProps: T) =>
-        mapStateToProps(new State<TStateRecord>(rawState).getSlice, ownProps),
-      (_, ownProps) => mapDispatchToProps(this.dispatch, ownProps)
+  ): ConnectedComponent<any, OwnProps> {
+    return connect(
+      (rawState, ownProps) =>
+        mapStateToProps
+          ? mapStateToProps(
+              new State<State>(rawState as State).getSlice,
+              ownProps as any
+            )
+          : null,
+      (_, ownProps) =>
+        mapDispatchToProps
+          ? mapDispatchToProps(this.dispatch, ownProps as any)
+          : null
     )(component);
   }
 
-  public createReducer = <K extends keyof TStateRecord>(
-    slice: K,
-    initialData: TStateRecord[K]
-  ): Reducer<TStateRecord[K], TActionsRecord> => {
-    if (this[isAlive]) {
-      throw new Error('Cannot create a reducer after the app has been created');
-    }
-    return new Reducer<TStateRecord[K], TActionsRecord>(
-      slice as string,
-      initialData
-    );
+  public createReducer = <Slice extends keyof State>(
+    slice: Slice,
+    initialData: State[Slice]
+  ): Reducer<State[Slice], Actions> => {
+    return new Reducer<State[Slice], Actions>(slice as string, initialData);
   };
 
-  public createListener<P extends ActionNVK>(
-    action: P,
-    listener: ListenerFunc<TActionsRecord[P], TStateRecord>
-  ): Listener<TStateRecord>;
-  public createListener<P extends ActionVK>(
-    action: P,
+  // TODO: symmetry between createReducer and createListener is off...the later handles an action, the former doesn't
+  public createListener<ActionName extends ActionNVK>(
+    action: ActionName,
+    listener: ListenerFunc<Actions[ActionName], State>
+  ): Listener<State>;
+  public createListener<Action extends ActionVK>(
+    action: Action,
     listener: () => void
-  ): Listener<TStateRecord>;
+  ): Listener<State>;
   public createListener(
     action: any,
-    listener: ListenerFunc<any, TStateRecord> | (() => void)
-  ): Listener<TStateRecord> {
-    if (this[isAlive]) {
-      throw new Error(
-        'Cannot create a listener after the app has been created'
-      );
-    }
+    listener: ListenerFunc<any, State> | (() => void)
+  ): Listener<State> {
     return new Listener(action, listener);
   }
 
   public createApp = ({
-    container: Container,
+    container,
     reducers: appReducers = [],
     listeners: appListeners = [],
     middleware = []
   }: {
-    container: any;
-    listeners?: Listener<TStateRecord>[];
-    reducers?: Reducer<unknown, TActionsRecord>[];
+    container: React.Component | ConnectedComponent<any, any>;
+    listeners?: Listener<State>[];
+    reducers?: Reducer<State[keyof State], Actions>[];
     middleware?: Middleware[];
-  }): JSX.Element => {
-    this[isAlive] = true;
+  }): React.FunctionComponent => {
     const reducerSet: Record<string, ReduxReducer> = {};
 
     for (const appReducer of appReducers) {
@@ -155,6 +155,7 @@ export class Reduxology<
       reducerSet[slice] = appReducer[reduxReducer];
     }
 
+    this[actionListeners] = {};
     for (const appListener of appListeners) {
       const action = appListener[listenerAction];
       if (!this[actionListeners].hasOwnProperty(action)) {
@@ -168,7 +169,7 @@ export class Reduxology<
         for (const listener of this[actionListeners][action.type]) {
           listener(
             action.data,
-            new State<TStateRecord>(this[store].getState()).getSlice
+            new State<State>(this[store].getState()).getSlice
           );
         }
       }
@@ -180,18 +181,21 @@ export class Reduxology<
       applyMiddleware(...middleware)
     );
 
-    return (
+    const Container = container as any;
+    const App = () => (
       <Provider store={this[store]}>
         <Container />
       </Provider>
     );
+
+    return App;
   };
 
-  public dispatch<P extends DispatchNVK>(
-    action: P,
-    data: TActionsRecord[P]
+  public dispatch<Action extends DispatchNVK>(
+    action: Action,
+    data: Actions[Action]
   ): void;
-  public dispatch<P extends DispatchVK>(action: P): void;
+  public dispatch<Action extends DispatchVK>(action: Action): void;
   public dispatch(action: any, data?: any): void {
     if (!this[store]) {
       throw new Error('Cannot call "dispatch" before "createApp" is called');

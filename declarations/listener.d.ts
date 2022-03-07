@@ -1,9 +1,9 @@
 import { GetSlice } from './state';
 export declare const listenerAction: unique symbol;
 export declare const listenerListener: unique symbol;
-export declare type ListenerFunc<T, TStateRecord> = (data: T, getSlice: GetSlice<TStateRecord>) => void;
-export declare class Listener<TStateRecord> {
+export declare type ListenerFunc<ActionData, State> = (data: ActionData, getSlice: GetSlice<State>) => void;
+export declare class Listener<State> {
     [listenerAction]: string;
-    [listenerListener]: ListenerFunc<unknown, TStateRecord>;
-    constructor(actionName: string, newListener: ListenerFunc<unknown, TStateRecord>);
+    [listenerListener]: ListenerFunc<unknown, State>;
+    constructor(actionName: string, newListener: ListenerFunc<unknown, State>);
 }

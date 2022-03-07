@@ -25,7 +25,7 @@ SOFTWARE.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Reducer = exports.makeReducerAlive = exports.reducerSlice = exports.reduxReducer = void 0;
 const immer_1 = require("immer");
-immer_1.enableMapSet();
+(0, immer_1.enableMapSet)();
 exports.reduxReducer = Symbol();
 exports.reducerSlice = Symbol();
 exports.makeReducerAlive = Symbol();
@@ -44,7 +44,7 @@ class Reducer {
                 state = init;
             }
             if (this[actionHandlers].hasOwnProperty(action.type)) {
-                return immer_1.default(state, (draftState) => {
+                return (0, immer_1.default)(state, (draftState) => {
                     return this[actionHandlers][action.type](draftState, action.data);
                 });
             }

@@ -1,4 +1,4 @@
-/// <reference types="react" />
+import * as React from 'react';
 import { ConnectedComponent } from 'react-redux';
 import { Middleware } from 'redux';
 import { GetSlice } from './state';
@@ -7,42 +7,40 @@ import { Listener, ListenerFunc } from './listener';
 import { VoidKeys } from './util';
 declare const store: unique symbol;
 declare const actionListeners: unique symbol;
-declare const isAlive: unique symbol;
-export declare class Reduxology<TStateRecord, TActionsRecord, ActionVK extends VoidKeys<TActionsRecord> = VoidKeys<TActionsRecord>, ActionNVK extends Exclude<keyof TActionsRecord, ActionVK> = Exclude<keyof TActionsRecord, ActionVK>, DispatchVK extends VoidKeys<TActionsRecord> = VoidKeys<TActionsRecord>, DispatchNVK extends Exclude<keyof TActionsRecord, DispatchVK> = Exclude<keyof TActionsRecord, DispatchVK>> {
+export declare class Reduxology<State, Actions, ActionVK extends VoidKeys<Actions> = VoidKeys<Actions>, ActionNVK extends Exclude<keyof Actions, ActionVK> = Exclude<keyof Actions, ActionVK>, DispatchVK extends VoidKeys<Actions> = VoidKeys<Actions>, DispatchNVK extends Exclude<keyof Actions, DispatchVK> = Exclude<keyof Actions, DispatchVK>> {
     private [actionListeners];
     private [store];
-    private [isAlive];
     constructor();
-    createContainer<T>(mapStateToProps: (getSlice: GetSlice<TStateRecord>, ownProps: T) => any, mapDispatchToProps: (dispatch: Reduxology<TStateRecord, TActionsRecord>['dispatch'], ownProps: T) => any, component: any): ConnectedComponent<any, T>;
-    createReducer: <K extends keyof TStateRecord>(slice: K, initialData: TStateRecord[K]) => Reducer<TStateRecord[K], TActionsRecord, keyof TActionsRecord extends (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) ? (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) & keyof TActionsRecord : never, Exclude<keyof TActionsRecord, keyof TActionsRecord extends (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) ? (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) & keyof TActionsRecord : never>>;
-    createListener<P extends ActionNVK>(action: P, listener: ListenerFunc<TActionsRecord[P], TStateRecord>): Listener<TStateRecord>;
-    createListener<P extends ActionVK>(action: P, listener: () => void): Listener<TStateRecord>;
-    createApp: ({ container: Container, reducers: appReducers, listeners: appListeners, middleware }: {
-        container: any;
-        listeners?: Listener<TStateRecord>[] | undefined;
-        reducers?: Reducer<unknown, TActionsRecord, keyof TActionsRecord extends (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) ? (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) & keyof TActionsRecord : never, Exclude<keyof TActionsRecord, keyof TActionsRecord extends (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) ? (TActionsRecord[keyof TActionsRecord] extends void ? keyof TActionsRecord : never) & keyof TActionsRecord : never>>[] | undefined;
+    createContainer<ComponentProps = null, ComponentDispatch = null, OwnProps = Record<string, never>>(mapStateToProps: (getSlice: GetSlice<State>, ownProps: OwnProps) => ComponentProps | null, mapDispatchToProps: (dispatch: Reduxology<State, Actions>['dispatch'], ownProps: OwnProps) => ComponentDispatch | null, component: any): ConnectedComponent<any, OwnProps>;
+    createReducer: <Slice extends keyof State>(slice: Slice, initialData: State[Slice]) => Reducer<State[Slice], Actions, keyof Actions extends (Actions[keyof Actions] extends void ? keyof Actions : never) ? (Actions[keyof Actions] extends void ? keyof Actions : never) & keyof Actions : never, Exclude<keyof Actions, keyof Actions extends (Actions[keyof Actions] extends void ? keyof Actions : never) ? (Actions[keyof Actions] extends void ? keyof Actions : never) & keyof Actions : never>>;
+    createListener<ActionName extends ActionNVK>(action: ActionName, listener: ListenerFunc<Actions[ActionName], State>): Listener<State>;
+    createListener<Action extends ActionVK>(action: Action, listener: () => void): Listener<State>;
+    createApp: ({ container, reducers: appReducers, listeners: appListeners, middleware }: {
+        container: React.Component | ConnectedComponent<any, any>;
+        listeners?: Listener<State>[] | undefined;
+        reducers?: Reducer<State[keyof State], Actions, keyof Actions extends (Actions[keyof Actions] extends void ? keyof Actions : never) ? (Actions[keyof Actions] extends void ? keyof Actions : never) & keyof Actions : never, Exclude<keyof Actions, keyof Actions extends (Actions[keyof Actions] extends void ? keyof Actions : never) ? (Actions[keyof Actions] extends void ? keyof Actions : never) & keyof Actions : never>>[] | undefined;
         middleware?: Middleware<{}, any, import("redux").Dispatch<import("redux").AnyAction>>[] | undefined;
-    }) => JSX.Element;
-    dispatch<P extends DispatchNVK>(action: P, data: TActionsRecord[P]): void;
-    dispatch<P extends DispatchVK>(action: P): void;
+    }) => React.FunctionComponent;
+    dispatch<Action extends DispatchNVK>(action: Action, data: Actions[Action]): void;
+    dispatch<Action extends DispatchVK>(action: Action): void;
 }
-export declare const createContainer: <T>(mapStateToProps: (getSlice: GetSlice<unknown>, ownProps: T) => any, mapDispatchToProps: (dispatch: {
-    <P extends never>(action: P, data: unknown): void;
-    <P_1 extends never>(action: P_1): void;
-}, ownProps: T) => any, component: any) => ConnectedComponent<any, T>;
-export declare const createReducer: <K extends never>(slice: K, initialData: unknown) => Reducer<unknown, unknown, never, never>;
+export declare const createContainer: <ComponentProps = null, ComponentDispatch = null, OwnProps = Record<string, never>>(mapStateToProps: (getSlice: GetSlice<unknown>, ownProps: OwnProps) => ComponentProps | null, mapDispatchToProps: (dispatch: {
+    <Action extends never>(action: Action, data: unknown): void;
+    <Action_1 extends never>(action: Action_1): void;
+}, ownProps: OwnProps) => ComponentDispatch | null, component: any) => ConnectedComponent<any, OwnProps>;
+export declare const createReducer: <Slice extends never>(slice: Slice, initialData: unknown) => Reducer<unknown, unknown, never, never>;
 export declare const createListener: {
-    <P extends never>(action: P, listener: ListenerFunc<unknown, unknown>): Listener<unknown>;
-    <P_1 extends never>(action: P_1, listener: () => void): Listener<unknown>;
+    <ActionName extends never>(action: ActionName, listener: ListenerFunc<unknown, unknown>): Listener<unknown>;
+    <Action extends never>(action: Action, listener: () => void): Listener<unknown>;
 };
-export declare const createApp: ({ container: Container, reducers: appReducers, listeners: appListeners, middleware }: {
-    container: any;
+export declare const createApp: ({ container, reducers: appReducers, listeners: appListeners, middleware }: {
+    container: React.Component | ConnectedComponent<any, any>;
     listeners?: Listener<unknown>[] | undefined;
-    reducers?: Reducer<unknown, unknown, never, never>[] | undefined;
+    reducers?: Reducer<never, unknown, never, never>[] | undefined;
     middleware?: Middleware<{}, any, import("redux").Dispatch<import("redux").AnyAction>>[] | undefined;
-}) => JSX.Element;
+}) => React.FunctionComponent;
 export declare const dispatch: {
-    <P extends never>(action: P, data: unknown): void;
-    <P_1 extends never>(action: P_1): void;
+    <Action extends never>(action: Action, data: unknown): void;
+    <Action_1 extends never>(action: Action_1): void;
 };
 export {};

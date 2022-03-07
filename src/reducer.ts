@@ -37,11 +37,11 @@ const isAlive = Symbol();
 type Handler<S, A> = (slice: S, action: A) => void;
 
 export class Reducer<
-  TSliceRecord,
-  TActionsRecord,
-  ActionVK extends VoidKeys<TActionsRecord> = VoidKeys<TActionsRecord>,
-  ActionNVK extends Exclude<keyof TActionsRecord, ActionVK> = Exclude<
-    keyof TActionsRecord,
+  Slice,
+  Actions,
+  ActionVK extends VoidKeys<Actions> = VoidKeys<Actions>,
+  ActionNVK extends Exclude<keyof Actions, ActionVK> = Exclude<
+    keyof Actions,
     ActionVK
   >
 > {
@@ -71,15 +71,18 @@ export class Reducer<
     };
   }
 
-  public handle<P extends ActionNVK>(
-    action: P,
-    handler: Handler<TSliceRecord, TActionsRecord[P]>
+  public handle<Action extends ActionNVK>(
+    action: Action,
+    handler: Handler<Slice, Actions[Action]>
   ): void;
-  public handle<P extends ActionVK>(action: P, handler: () => void): void;
+  public handle<Action extends ActionVK>(
+    action: Action,
+    handler: () => void
+  ): void;
   public handle(
     actionType: string,
     handler: (state: any, actionData: any) => void
-  ): Reducer<TSliceRecord, TActionsRecord> {
+  ): Reducer<Slice, Actions> {
     if (this[isAlive]) {
       throw new Error(
         'Cannot attach a reducer handler after the app has been created'

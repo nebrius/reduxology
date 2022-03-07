@@ -32,13 +32,11 @@ const reducer_1 = require("./reducer");
 const listener_1 = require("./listener");
 const store = Symbol();
 const actionListeners = Symbol();
-const isAlive = Symbol();
 // The type implementation for this is borrowed from Brian Terlson's work:
 // https://medium.com/@bterlson/strongly-typed-event-emitters-2c2345801de8
 class Reduxology {
     [actionListeners] = {};
     [store];
-    [isAlive] = false;
     constructor() {
         // We can't use class fields to bind these methods using arrow functions,
         // since we have to use overloaded or generic TypeScript signatures which
@@ -48,23 +46,19 @@ class Reduxology {
         this.createContainer = this.createContainer.bind(this);
     }
     createContainer(mapStateToProps, mapDispatchToProps, component) {
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        return react_redux_1.connect((rawState, ownProps) => mapStateToProps(new state_1.State(rawState).getSlice, ownProps), (_, ownProps) => mapDispatchToProps(this.dispatch, ownProps))(component);
+        return (0, react_redux_1.connect)((rawState, ownProps) => mapStateToProps
+            ? mapStateToProps(new state_1.State(rawState).getSlice, ownProps)
+            : null, (_, ownProps) => mapDispatchToProps
+            ? mapDispatchToProps(this.dispatch, ownProps)
+            : null)(component);
     }
     createReducer = (slice, initialData) => {
-        if (this[isAlive]) {
-            throw new Error('Cannot create a reducer after the app has been created');
-        }
         return new reducer_1.Reducer(slice, initialData);
     };
     createListener(action, listener) {
-        if (this[isAlive]) {
-            throw new Error('Cannot create a listener after the app has been created');
-        }
         return new listener_1.Listener(action, listener);
     }
-    createApp = ({ container: Container, reducers: appReducers = [], listeners: appListeners = [], middleware = [] }) => {
-        this[isAlive] = true;
+    createApp = ({ container, reducers: appReducers = [], listeners: appListeners = [], middleware = [] }) => {
         const reducerSet = {};
         for (const appReducer of appReducers) {
             const slice = appReducer[reducer_1.reducerSlice];
@@ -74,6 +68,7 @@ class Reduxology {
             appReducer[reducer_1.makeReducerAlive]();
             reducerSet[slice] = appReducer[reducer_1.reduxReducer];
         }
+        this[actionListeners] = {};
         for (const appListener of appListeners) {
             const action = appListener[listener_1.listenerAction];
             if (!this[actionListeners].hasOwnProperty(action)) {
@@ -89,9 +84,11 @@ class Reduxology {
             }
             return next(action);
         });
-        this[store] = redux_1.createStore(redux_1.combineReducers(reducerSet), redux_1.applyMiddleware(...middleware));
-        return (React.createElement(react_redux_1.Provider, { store: this[store] },
+        this[store] = (0, redux_1.createStore)((0, redux_1.combineReducers)(reducerSet), (0, redux_1.applyMiddleware)(...middleware));
+        const Container = container;
+        const App = () => (React.createElement(react_redux_1.Provider, { store: this[store] },
             React.createElement(Container, null)));
+        return App;
     };
     dispatch(action, data) {
         if (!this[store]) {
