@@ -5,8 +5,8 @@
   - [Actions](#actions)
   - [State](#state)
   - [Reducers](#reducers)
-  - [Containers](#containers)
   - [Action Listeners](#action-listeners)
+  - [Containers](#containers)
   - [App Creation](#app-creation)
   - [Using Existing Redux Middleware](#using-existing-redux-middleware)
 - [Strict Typing with TypeScript](#strict-typing-with-typescript)
@@ -93,6 +93,35 @@ The returned value from the `createReducer` is used to register the reducer with
 
 _Note:_ you do not need to register any handlers to create the reducer. The reducer will exist and return slice data in the `init` value passed in. This is useful if you want to create a reducer to expose initialization data through Redux that will not change throughout the lifetime of the application
 
+### Action Listeners
+
+An action listener is a function that is invoked when a specific action is dispatched, similar to a reducer handler. The key difference between a reducer handler and an action listener is that an action listener _cannot_ change state, but _can_ do operations with side effects. Action listeners are the place to perform API calls, browser navigations, etc. An action listener is virtually indistinguishable from a general JavaScript event listener in practice. Action listeners are registered using the [handle()](#handleactiontype-listener) function.
+
+For example, if you wanted to make an API call that fetches an item after a user clicks a button that dispatches a `RequestItem` action, you could write something like this:
+
+```JavaScript
+// listeners.ts
+import { handle, dispatch } from 'reduxology';
+
+export const requestItemListener = handle('RequestItem', async (id) => {
+  try {
+    const response = await fetch(`/api/items/${id}/`);
+    const data = await response.json();
+    dispatch('ItemFetched', {id, data});
+  } catch (e) {
+    dispatch('ItemFetchFailed', id);
+  }
+});
+```
+
+Action listeners are implemented as Redux middleware under the hood, and inherits several behavioral traits from middleware. Most importantly, action listeners are run _before_ reducer handlers.
+
+Unlike traditional middleware, this function does _not_ provide a mechanism for modifying state. This was done intentionally to keep the API simple and address the most common use case for middleware. This also makes action listeners a safe place to perform side effects without affecting how we reason about state changes.
+
+In some cases, you may need access to other parts of state in your listener in addition to the action data. Each listener is passed `getSlice` as the second argument, like you get in containers. This allows you to pull in any state you need.
+
+Technical note: Although this action listener is an `async` function, action listeners are _not_ `await`ed by Reduxology. This means that the action dispatch is not blocked by the listener, and will continue being dispatched at the first `await` in the function.
+
 ### Containers
 
 Containers look quite similar to vanilla React-Redux containers, except that there is a single function call to [createContainer()](#createcontainermapstatetoprops-mapdispatchtoprops-component--react-redux-container) instead of a double call to `connect()` and the function it returns. The first argument is mapStateToProps, and the second is mapDispatchToProps, same as in React Redux.
@@ -119,35 +148,6 @@ export const AppContainer = createContainer(
   AppComponent
 );
 ```
-
-### Action Listeners
-
-An action listener is a function that is invoked when a specific action is dispatched, similar to a reducer handler. The key difference between a reducer handler and an action listener is that an action listener _cannot_ change state, but _can_ do operations with side effects. Action listeners are the place to perform API calls, browser navigations, etc. An action listener is virtually indistinguishable from a general JavaScript event listener in practice.
-
-For example, if you wanted to make an API call that fetches an item after a user clicks a button that dispatches a `RequestItem` action, you could write something like this:
-
-```JavaScript
-// listeners.ts
-import { handle, dispatch } from 'reduxology';
-
-export const requestItemListener = handle('RequestItem', async (id) => {
-  try {
-    const response = await fetch(`/api/items/${id}/`);
-    const data = await response.json();
-    dispatch('ItemFetched', {id, data});
-  } catch (e) {
-    dispatch('ItemFetchFailed', id);
-  }
-});
-```
-
-Action listeners are implemented as Redux middleware under the hood, and inherits several behavioral traits from middleware. Most importantly, action listeners are run _before_ reducer handlers.
-
-Unlike traditional middleware, this function does _not_ provide a mechanism for modifying state. This was done intentionally to keep the API simple and address the most common use case for middleware. This also makes action listeners a safe place to perform side effects without affecting how we reason about state changes.
-
-In some cases, you may need access to other parts of state in your listener in addition to the action data. Each listener is passed `getSlice` as the second argument, like you get in containers. This allows you to pull in any state you need.
-
-Technical note: Although this action listener is an `async` function, action listeners are _not_ `await`ed by Reduxology. This means that the action dispatch is not blocked by the listener, and will continue being dispatched at the first `await` in the function.
 
 ### App Creation
 
