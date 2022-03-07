@@ -1,3 +1,7 @@
+## 3.0.1 (2022-03-07)
+
+- Fixed a bug where `mapStateToProps` and `mapDispatchToProps` might return `null`.
+
 ## 3.0.0 (2022-03-07)
 
 - BREAKING CHANGE: `createApp` now returns a `React.FunctionComponent` instead of `JSX.Element`

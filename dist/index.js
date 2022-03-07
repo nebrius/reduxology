@@ -48,9 +48,9 @@ class Reduxology {
     createContainer(mapStateToProps, mapDispatchToProps, component) {
         return (0, react_redux_1.connect)((rawState, ownProps) => mapStateToProps
             ? mapStateToProps(new state_1.State(rawState).getSlice, ownProps)
-            : null, (_, ownProps) => mapDispatchToProps
+            : {}, (_, ownProps) => mapDispatchToProps
             ? mapDispatchToProps(this.dispatch, ownProps)
-            : null)(component);
+            : {})(component);
     }
     createReducer = (slice, initialData) => {
         return new reducer_1.Reducer(slice, initialData);

@@ -100,11 +100,11 @@ export class Reduxology<
               new State<State>(rawState as State).getSlice,
               ownProps as any
             )
-          : null,
+          : {},
       (_, ownProps) =>
         mapDispatchToProps
           ? mapDispatchToProps(this.dispatch, ownProps as any)
-          : null
+          : {}
     )(component);
   }
 
